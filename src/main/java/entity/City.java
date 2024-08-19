@@ -3,6 +3,8 @@ package entity;
 import enumaration.TypeOfCity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
@@ -22,6 +24,7 @@ public class City extends BaseEntity {
     String name;
 
     @Column(name = TYPE_OF_CITY)
+    @Enumerated(EnumType.STRING)
     TypeOfCity typeOfCity;
 
 

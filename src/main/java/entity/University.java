@@ -29,5 +29,6 @@ public class University extends BaseEntity {
     City city;
 
     @Column(name = TYPE_OF_UNIVERSITY)
+    @Enumerated(EnumType.STRING)
     TypeOfUniversity typeOfUniversity;
 }

@@ -32,6 +32,8 @@ public class Student extends BaseEntity {
     public static final String IS_MARRIED = "is_married";
     public static final String PARTNER_CODE = "partner_code";
     public static final String ADMISSION_TYPE = "admission_type";
+    public static final String USERNAME = "username";
+    public static final String PASSWORD = "password";
 
     @Column(name = FIRST_NAME)
 
@@ -44,7 +46,7 @@ public class Student extends BaseEntity {
     String fatherName;
 
     @Column(name = MATHER_NAME)
-    String MatherName;
+    String motherName;
 
     @Column(name = BIRTH_CERTIFICATE_NUMBER)
     String birthCertificateNumber;
@@ -62,6 +64,7 @@ public class Student extends BaseEntity {
     LocalDate birthdate;
 
     @Column(name = DEGREE)
+    @Enumerated(EnumType.STRING)
     Degree degree;
 
     @Column(name = IS_MARRIED)
@@ -71,10 +74,17 @@ public class Student extends BaseEntity {
     String partnerCode;
 
     @Column(name = ADMISSION_TYPE)
+    @Enumerated(EnumType.STRING)
     AdmissionType admissionType;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn
     University university;
+
+    @Column(name = USERNAME)
+    String userName;
+
+    @Column(name = PASSWORD)
+    String password;
 
 }
