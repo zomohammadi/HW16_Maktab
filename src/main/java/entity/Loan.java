@@ -1,5 +1,6 @@
 package entity;
 
+import enumaration.Degree;
 import enumaration.LoanType;
 import jakarta.persistence.*;
 import lombok.*;
@@ -16,7 +17,8 @@ import lombok.experimental.SuperBuilder;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Loan extends BaseEntity {
     public static final String LOAN_TYPE = "loan_type";
-    public static final String YEAR = "year";
+    public static final String AMOUNT = "amount";
+    public static final String DEGREE = "degree";
 
     @Column(name = LOAN_TYPE)
     LoanType loanType;
@@ -26,6 +28,14 @@ public class Loan extends BaseEntity {
     @JoinColumn
     Student student;
 
-    @Column(name = YEAR)
-    Integer year;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn
+    Term term;
+
+    @Column(name = AMOUNT)
+    Double amount;
+
+    @Column(name = DEGREE)
+    @Enumerated(EnumType.STRING)
+    Degree degree;
 }

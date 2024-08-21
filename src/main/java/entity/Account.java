@@ -15,6 +15,7 @@ import lombok.experimental.SuperBuilder;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Account extends BaseEntity {
     public static final String BALANCE = "balance";
+    public static final String ACCOUNT_NUMBER = "account_number";
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn
@@ -26,4 +27,7 @@ public class Account extends BaseEntity {
 
     @Column(name = BALANCE)
     Double balance;
+
+    @Column(name = ACCOUNT_NUMBER)
+    int accountNumber;
 }

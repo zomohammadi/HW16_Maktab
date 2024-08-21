@@ -9,10 +9,10 @@ import enumaration.TypeOfUniversity;
 import exceptions.CityExceptions;
 import exceptions.StudentExceptions;
 import exceptions.UniversityExceptions;
-import jakarta.persistence.PersistenceException;
 import service.CityService;
 import service.StudentService;
 import service.UniversityService;
+import util.Utility;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -365,7 +365,7 @@ public class LoginMenu {
                 } while (continues);
             }
         }
-        String password = studentService.generateSecurePassword();
+        String password = Utility.generateSecurePassword();
         Student student = Student.builder()
                 .firstName(firstName).lastName(lastName).fatherName(fatherName).motherName(motherName)
                 .birthCertificateNumber(birthCertificateNumber).nationalCode(nationalCode)

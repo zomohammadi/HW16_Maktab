@@ -2,17 +2,15 @@ package menu;
 
 import entity.Student;
 
-import java.sql.SQLException;
-
 public class MainMenu {
     private Student token;
 
     private final LoginMenu loginMenu;
-    private final LoanMenu loanMenu;
+    private final StudentMenu studentMenu;
 
-    public MainMenu(LoginMenu loginMenu, LoanMenu loanMenu) {
+    public MainMenu(LoginMenu loginMenu, LoanMenu loanMenu, StudentMenu studentMenu) {
         this.loginMenu = loginMenu;
-        this.loanMenu = loanMenu;
+        this.studentMenu = studentMenu;
     }
 
     public void showMainMenu(){
@@ -20,7 +18,7 @@ public class MainMenu {
             loginMenu.showLoginMenu();
             token = loginMenu.getToken();
             if (token != null) {
-               // loanMenu.showLoanMenu(token);
+                studentMenu.showStudentMenu(token);
                 token = null;
             } else {
                 break;
