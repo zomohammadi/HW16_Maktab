@@ -40,7 +40,11 @@ public abstract class BaseEntityRepositoryImpl<T extends BaseEntity> implements 
     public T findById(Long id) {
         return entityManager.find(getEntityClass(), id);
     }
-
+    public void update(T t) {
+        entityManager.getTransaction().begin();
+        entityManager.merge(t);
+        entityManager.getTransaction().commit();
+    }
     public EntityManager getEntityManager() {
         return entityManager;
     }

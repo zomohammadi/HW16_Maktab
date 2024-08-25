@@ -16,6 +16,6 @@ import lombok.experimental.SuperBuilder;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Bank extends BaseEntity {
     public static final String NAME = "name";
-    @Column(name = NAME)
+    @Column(name = NAME,unique = true)
     String name;
 }

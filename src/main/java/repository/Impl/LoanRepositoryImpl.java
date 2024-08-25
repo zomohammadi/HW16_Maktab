@@ -2,6 +2,7 @@ package repository.Impl;
 
 import entity.Loan;
 import entity.Student;
+import enumaration.LoanType;
 import enumaration.TermType;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
@@ -25,9 +26,9 @@ public class LoanRepositoryImpl extends BaseEntityRepositoryImpl<Loan> implement
                 and l.loanType = ?4
                 """, Loan.class);
         query.setParameter(1, year);
-        query.setParameter(2, termType);
+        query.setParameter(2, TermType.valueOf(termType));
         query.setParameter(3, student);
-        query.setParameter(4, TermType.valueOf(loanType));
+        query.setParameter(4, LoanType.valueOf(loanType));
 
         return query.getSingleResult();
     }

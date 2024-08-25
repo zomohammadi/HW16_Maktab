@@ -4,7 +4,9 @@ import entity.*;
 import enumaration.Degree;
 import enumaration.LoanType;
 import enumaration.TermType;
+import exceptions.CreditCardExceptions;
 import exceptions.LoanExceptions;
+import jakarta.persistence.Tuple;
 import service.*;
 
 import java.time.LocalDate;
@@ -18,20 +20,22 @@ public class LoanMenu {
     private final BankService bankService;
     private final AccountService accountService;
     private final CreditCardService creditCardService;
+    private final LoanCreditCardService loanCreditCardService;
 
-    public LoanMenu(TermService termService, LoanService loanService, BankService bankService, AccountService accountService, CreditCardService creditCardService) {
+    public LoanMenu(TermService termService, LoanService loanService, BankService bankService, AccountService accountService, CreditCardService creditCardService, LoanCreditCardService loanCreditCardService) {
         this.termService = termService;
         this.loanService = loanService;
         this.bankService = bankService;
         this.accountService = accountService;
         this.creditCardService = creditCardService;
+        this.loanCreditCardService = loanCreditCardService;
     }
 
 
-    public void showTweetMenu(Student token, LocalDate currentDate) {
+    public void showLoanMenu(Student token, LocalDate currentDate) {
         Scanner input = new Scanner(System.in);
-        boolean condition = true;
-        while (condition) {
+        boolean continueRunning = true;
+        while (continueRunning) {
             System.out.println("""
                         Loan Menu:
                         1. Register Education Loan
@@ -39,142 +43,254 @@ public class LoanMenu {
                         3. Register Mortgage
                         4. Exit
                     """);
-            int option = input.nextInt();
-            input.nextLine();
-            switch (option) {
-                case 1 -> {
-                    String termType;
-                    termType = getCurrentTermType(currentDate);
-                    try {
-                        Loan loan = loanService
-                                .findLoanForStudentInTerm(currentDate.getYear(),
-                                        termType, token, String.valueOf(LoanType.Education));
-                        System.out.println("You have received a loan this semester");
-                        return;
-                    } catch (LoanExceptions.DatabaseAccessException e) {
-                        System.out.println(e.getMessage());
-                        System.out.println("this student has not received a loan this semester");
-                    }
+            System.out.print("Option: ");
+            String stringOption = input.nextLine();
+            if (stringOption == null || stringOption.isEmpty()) {
+                System.out.println("Input can not be null or empty");
+                showLoanMenu(token, currentDate);
+                break;
+            }
+            try {
+                Integer option = Integer.parseInt(stringOption);
 
-                    //-------------------------------------------------------------------------
-                    //get credit card from student:
-                    String cardNumber;
-                    String cvv2;
-                    LocalDate expirationDate = null;
-                    boolean conditions = true;
-                    do {
-                        System.out.print("Enter the CardNumber (6 digit): ");
-                        cardNumber = input.nextLine();
-                    } while (!fillInputNumbers(cardNumber, 6));
-                    do {
-                        System.out.print("Enter the CardNumber (3 digit): ");
-                        cvv2 = input.nextLine();
-                    } while (!fillInputNumbers(cvv2, 3));
-                    do {
-                        System.out.print("expiration date:  ");
-                        System.out.print("Enter the Year of expiration date:  ");
-                        String yearOfExpirationDate = input.nextLine();
-                        if (fillInputNumbersWithMinAndMaxYear(yearOfExpirationDate, 2019, 2028)) {
-                            //if (Integer.parseInt(yearOfExpirationDate) != currentDate.getYear()) {
-                            System.out.print("Enter the Month Of expiration date: ");
-                            String monthExpirationDate = input.nextLine();
-                            if (fillInputNumbersWithMinAndMaxYear(monthExpirationDate, 1, 12)) {
-                                System.out.print("Enter the Day Of expiration date: ");
-                                String dayOfExpirationDate = input.nextLine();
-                                switch (Integer.parseInt(monthExpirationDate)) {
-                                    case 1, 3, 5, 6, 7, 8, 10, 12 ->
-                                            fillInputNumbersWithMinAndMaxYear(dayOfExpirationDate,
-                                                    1, 31);
-                                    case 4, 9, 11 -> fillInputNumbersWithMinAndMaxYear(dayOfExpirationDate,
-                                            1, 30);
-                                    default -> fillInputNumbersWithMinAndMaxYear(dayOfExpirationDate,
-                                            1, 29);
-                                }
-                                expirationDate = LocalDate.of(Integer.parseInt(yearOfExpirationDate),
-                                        Integer.parseInt(monthExpirationDate), Integer.parseInt(dayOfExpirationDate));
-                                if (currentDate.getYear() < Integer.parseInt(yearOfExpirationDate)
-                                    && currentDate.getMonthValue() < Integer.parseInt(monthExpirationDate)
-                                    && currentDate.getDayOfMonth() < Integer.parseInt(dayOfExpirationDate)) {
-                                    System.out.println("your card is expired! ");
-                                } else conditions = false;
-                            }
-                        }
-                    } while (conditions);
-                    //-------------------------------------------------------------------------
-                    String bankName;
-                    do {
-                        do {
-                            System.out.print("""
-                                    enter the Bank name: 
-                                    Meli
-                                    Refah
-                                    Tejarat
-                                    Maskan
-                                    """);
-                            bankName = input.nextLine();
-                        } while (!fillInputString(bankName));
-                        if (bankName.equals("Meli") || bankName.equals("Refah") || bankName.equals("Tejarat")
-                            || bankName.equals("Maskan")) {
-                            System.out.println("enter the bank name of list!");
-                            conditions = true;
-                        }
+                switch (option) {
+                    case 1 -> registerEducationLoan(token, currentDate, input);
 
-                        conditions = false;
-                    } while (conditions);
-
-                    Bank bank = bankService.findByName(bankName);
-                    //get account number and create Account Object and save in DB
-                    //------------------------------------------------------------------------------
-                    Account account = Account.builder().student(token).bank(bank).build();
-                    accountService.save(account);
-                    //--------------create object credit card and save in DB:
-                    CreditCard creditCard = CreditCard.builder().account(account).cardNumber(cardNumber)
-                            .cvv2(cvv2).expirationDate(expirationDate).build();
-
-                    //-------------------------------------------------------------------------
-                    Term term = Term.builder().termType(TermType.valueOf(termType)).
-                            year(currentDate.getYear()).build();
-
-                    //TODOo exception for save method for term
-                    Term termAfterSaveInDB;
-                    try {
-
-                        termAfterSaveInDB = termService.save(term);
-                    } catch (Exception e) {
-                        System.out.println(e.getMessage());
-                        return;
-                    }
-                    Degree degree = token.getDegree();
-                    Double amountOfLoan;
-                    switch (degree) {
-                        case Associate, Continuous_Bachelor,
-                                DisContinuous_Bachelor -> amountOfLoan = 1900000.0;
-                        case IntegratedMaster, DisContinuousMaster, ProfessionalDoctorate,
-                                IntegratedDoctorate -> amountOfLoan = 2250000.0;
-                        case PhD -> amountOfLoan = 2600000.0;
-                        default -> amountOfLoan = 0.0;
-                    }
-                    creditCardService.save(creditCard);
-                    System.out.println("creditCard save ");
-                    Loan loan = Loan.builder().loanType(LoanType.Education).student(token).amount(amountOfLoan)
-                            .degree(degree).term(termAfterSaveInDB).build();
-                    loanService.save(loan);
-                    System.out.println("done!");
-
+                //case 2 -> registerTuitionLoan(token, currentDate, input);
+                    /* case 3 -> */
+                    case 4 -> continueRunning = false;
+                    default -> System.out.println("Wrong option!");
                 }
-              /*  case 2 -> ;
-                case 3 -> */
-                case 4 -> condition = false;
-                default -> System.out.println("Wrong option!");
+            } catch (Exception e) {
+                if (e instanceof NumberFormatException) {
+                    System.out.println("Wrong option!");
+                }
             }
         }
     }
 
-    private String getCurrentTermType(LocalDate currentDate) {
+    private void registerTuitionLoan(Student token, LocalDate currentDate, Scanner input) {
+
+    }
+
+    private void registerEducationLoan(Student token, LocalDate currentDate, Scanner input) {
         String termType;
+        termType = getCurrentTermType(currentDate);
+        if (checkStudentGetLoanInTermOfYear(token, currentDate, termType, String.valueOf(LoanType.Education)))
+            return ;
+
+        //-------------------------------------------------------------------------
+        //get credit card from student:
+        boolean conditions;
+        String cardNumber;
+        String cvv2 = null;
+        LocalDate expirationDate = null;
+        CreditCard creditCard = null;
+        Account account = null;
+        do {
+
+            conditions = false;
+
+            cardNumber = enterCardNumber(input);
+
+            try {
+                Tuple result = creditCardService.findByCardNumber(cardNumber);
+                creditCard = result.get("creditCard", CreditCard.class);
+                account = result.get("account", Account.class);
+            } catch (CreditCardExceptions.NotFoundException e6) {
+                cvv2 = enterCvv2(input);
+                boolean expireDateCondition = true;
+                do {
+                    try {
+                        expirationDate = enterExpirationDate(input);
+                    } catch (Exception e) {
+                        System.out.println("invalid number! input the number");
+                    }
+                    if (expirationDate != null) expireDateCondition = false;
+                } while (expireDateCondition);
+
+                conditions = checkCardIsExpired(currentDate, conditions, expirationDate);
+                if (conditions) System.out.println("Enter the Card Number that is not expired");
+
+            }
+
+        } while (conditions);
+
+        if (creditCard == null) {
+            //-------------------------------------------------------------------------
+            //get bank
+            String bankName = enterBankName(input);
+
+            Bank bank = bankService.findByName(bankName);
+            //------------------------------------------------------------------------------
+            //get account number and create Account Object and save in DB
+            account = Account.builder().student(token).bank(bank).build();
+
+            //--------------create object credit card and save in DB:
+            creditCard = CreditCard.builder().account(account).cardNumber(cardNumber)
+                    .cvv2(cvv2).expirationDate(expirationDate).build();
+
+            account = accountService.save(account);
+            creditCard = creditCardService.save(creditCard);
+            System.out.println("creditCard save ");
+        }
+        //-------------------------------------------------------------------------
+        Term term = Term.builder().termType(TermType.valueOf(termType)).
+                year(currentDate.getYear()).build();
+
+        //TODOo exception for save method for term
+        Term termAfterSaveInDB;
+        try {
+
+            termAfterSaveInDB = termService.save(term);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return ;
+        }
+        Degree degree = token.getDegree();
+        Double amountOfLoan = getAmountOfLoan(degree);
+
+
+        Loan loan = Loan.builder().loanType(LoanType.Education).student(token).amount(amountOfLoan)
+                .degree(degree).term(termAfterSaveInDB).build();
+        Loan loanAfterSave = loanService.save(loan);
+        //update account
+        account.setBalance(amountOfLoan);
+        accountService.save(account);
+        //-------------------------------------------------------------------------
+        //add new table with card loanAfterSave --> id_crd and id_loan loan_creditCard
+        loanCreditCardService.save(LoanCreditCard.builder().loan(loanAfterSave).creditCard(creditCard).build());
+        //-------------------------------------------------------------------------
+        //create payment table of this loan
+        ///TO//DO
+
+        System.out.println("The operation was successful.");
+    }
+
+    private LocalDate enterExpirationDate(Scanner input) {
+        LocalDate expirationDate = null;
+        System.out.print("expiration date:  ");
+        System.out.print("Enter the Year of expiration date:  ");
+        String yearOfExpirationDate = input.nextLine();
+        if (fillInputNumbersWithMinAndMaxDate(yearOfExpirationDate, 2019, 2028)) {
+            System.out.print("Enter the Month Of expiration date: ");
+            String monthExpirationDate = input.nextLine();
+            if (fillInputNumbersWithMinAndMaxDate(monthExpirationDate, 1, 12)) {
+                System.out.print("Enter the Day Of expiration date: ");
+                String dayOfExpirationDate = input.nextLine();
+                switch (Integer.parseInt(monthExpirationDate)) {
+                    case 1, 3, 5, 6, 7, 8, 10, 12 -> fillInputNumbersWithMinAndMaxDate(dayOfExpirationDate,
+                            1, 31);
+                    case 4, 9, 11 -> fillInputNumbersWithMinAndMaxDate(dayOfExpirationDate,
+                            1, 30);
+                    default -> fillInputNumbersWithMinAndMaxDate(dayOfExpirationDate,
+                            1, 29);
+                }
+                expirationDate = LocalDate.of(Integer.parseInt(yearOfExpirationDate),
+                        Integer.parseInt(monthExpirationDate), Integer.parseInt(dayOfExpirationDate));
+
+            }
+        }
+        return expirationDate;
+    }
+
+    private static boolean checkCardIsExpired(LocalDate currentDate, boolean conditions, LocalDate expirationDate) {
+        if (currentDate.getYear() < expirationDate.getYear()) {
+            System.out.println();
+        } else if (currentDate.getYear() == expirationDate.getYear()) {
+            if (currentDate.getMonthValue() < expirationDate.getDayOfMonth()) {
+                System.out.println();
+            } else if (currentDate.getMonthValue() == expirationDate.getDayOfMonth()) {
+                if (currentDate.getDayOfMonth() <= expirationDate.getDayOfMonth()) System.out.println();
+            }
+        } else {
+            System.out.println("your card is expired! Please Enter an unexpired card");
+            conditions = true;
+        }
+
+        return conditions;
+    }
+
+    private static Double getAmountOfLoan(Degree degree) {
+        Double amountOfLoan;
+        switch (degree) {
+            case Associate, Continuous_Bachelor,
+                    DisContinuous_Bachelor -> amountOfLoan = 1900000.0;
+            case IntegratedMaster, DisContinuousMaster, ProfessionalDoctorate,
+                    IntegratedDoctorate -> amountOfLoan = 2250000.0;
+            case PhD -> amountOfLoan = 2600000.0;
+            default -> amountOfLoan = 0.0;
+        }
+        return amountOfLoan;
+    }
+
+    private String enterBankName(Scanner input) {
+        boolean conditions = true;
+        String bankName;
+        do {
+            do {
+                System.out.print("""
+                        enter the Bank name :
+                        Meli
+                        Refah
+                        Tejarat
+                        Maskan
+                        """);
+                bankName = input.nextLine();
+            } while (!fillInputString(bankName));
+
+            if (bankName.equals("Meli") || bankName.equals("Refah") || bankName.equals("Tejarat")
+                || bankName.equals("Maskan")) {
+                System.out.println("Enter the bank name of list!");
+                conditions = false;
+            }
+
+
+        } while (conditions);
+        return bankName;
+    }
+
+
+    private String enterCvv2(Scanner input) {
+        String cvv2;
+        do {
+            System.out.print("Enter the cvv2 (3 digit): ");
+            cvv2 = input.nextLine();
+        } while (!fillInputNumbers(cvv2, 3));
+        return cvv2;
+    }
+
+    private String enterCardNumber(Scanner input) {
+        String cardNumber;
+        do {
+            System.out.print("Enter the CardNumber (6 digit): ");
+            cardNumber = input.nextLine();
+        } while (!fillInputNumbers(cardNumber, 6));
+        return cardNumber;
+    }
+
+
+    private boolean checkStudentGetLoanInTermOfYear(Student token, LocalDate currentDate, String termType, String loanType) {
+        try {
+            loanService.findLoanForStudentInTerm(currentDate.getYear(),
+                    termType, token, loanType);
+            System.out.println("You have received a loan this semester");
+            return true;
+        } catch (LoanExceptions.DatabaseAccessException e) {
+            System.out.println(e.getMessage());
+            System.out.println("this student has not received a loan this semester");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        return false;
+    }
+
+    private String getCurrentTermType(LocalDate currentDate) {
+        String termType = null;
         if (isAbanRange(currentDate)) {
             termType = String.valueOf(TermType.Autumn);
-        } else termType = String.valueOf(TermType.Winter);
+        } else if (isBahmanRange(currentDate))
+            termType = String.valueOf(TermType.Winter);
         return termType;
     }
 
@@ -206,22 +322,28 @@ public class LoanMenu {
         return fillInputNumbers_v2(input);
     }
 
-    private boolean fillInputNumbersWithMinAndMaxNumber(String input, int minDigit, int maxDigit) {
+   /* private boolean fillInputNumbersWithMinAndMaxNumber(String input, int minDigit, int maxDigit) {
         if (checkedNullInput(input)) return false;
         if (input.length() > maxDigit || input.length() < minDigit) {
             System.out.println("input must be between " + minDigit + " and " + maxDigit + " digit number");
             return false;
         }
         return fillInputNumbers_v2(input);
-    }
+    }*/
 
-    private boolean fillInputNumbersWithMinAndMaxYear(String input, int minDigit, int maxDigit) {
+    private boolean fillInputNumbersWithMinAndMaxDate(String input, int minDigit, int maxDigit) {
         if (checkedNullInput(input)) return false;
-        if (Integer.parseInt(input) > maxDigit || Integer.parseInt(input) < minDigit) {
-            System.out.println("input must be between " + minDigit + " and " + maxDigit + " digit number");
-            return false;
+        try {
+
+
+            if (Integer.parseInt(input) > maxDigit || Integer.parseInt(input) < minDigit) {
+                System.out.println("input must be between " + minDigit + " and " + maxDigit + " digit number");
+                return false;
+            }
+            return fillInputNumbers_v2(input);
+        } catch (Exception e) {
+            throw new RuntimeException();
         }
-        return fillInputNumbers_v2(input);
     }
 
 
@@ -254,7 +376,7 @@ public class LoanMenu {
         }
         return false;
     }
-
+/*
     private Integer checkNumber(Scanner input) {
         String id = input.nextLine();
         if (id == null || id.isEmpty()) {
@@ -269,5 +391,12 @@ public class LoanMenu {
             }
         }
         return Integer.valueOf(id);
+    }*/
+
+    private boolean isBahmanRange(LocalDate currentDate) {
+        LocalDate startOfRange = LocalDate.of(currentDate.getYear(), Month.FEBRUARY, 13);
+        LocalDate endOfRange = LocalDate.of(currentDate.getYear(), Month.FEBRUARY, 19);
+
+        return !currentDate.isBefore(startOfRange) && !currentDate.isAfter(endOfRange);
     }
 }

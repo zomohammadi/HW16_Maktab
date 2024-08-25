@@ -28,6 +28,7 @@ public class ApplicationContext {
     private final BankService bankService;
     private final AccountService accountService;
     private final CreditCardService creditCardService;
+    private final LoanCreditCardService loanCreditCardService;
 
     //menu
     private final MainMenu mainMenu;
@@ -51,6 +52,9 @@ public class ApplicationContext {
         BankRepository bankRepository = new BankRepositoryImpl(em);
         BaseEntityRepository<Account> accountBaseEntityRepository = new AccountRepositoryImp(em);
         BaseEntityRepository<CreditCard> creditCardBaseEntityRepository = new CreditCardRepositoryImp(em);
+        BaseEntityRepository<LoanCreditCard> loanCreditCardBaseEntityRepository = new LoanCreditCardRepositoryImp(em);
+        CreditCardRepository creditCardRepository = new CreditCardRepositoryImp(em);
+       // AccountRepository accountRepository = new AccountRepositoryImp(em);
 
         studentService = new StudentServiceImpl(studentBaseEntityRepository, studentRepository);
         universityService = new UniversityServiceImpl(universityBaseEntityRepository, universityRepository);
@@ -58,13 +62,14 @@ public class ApplicationContext {
         termService = new TermServiceImpl(termBaseEntityRepository);
         loanService = new LoanServiceImpl(loanRepository, loanBaseEntityRepository);
         bankService = new BankServiceImpl(bankRepository);
-        accountService = new AccountServiceImpl(accountBaseEntityRepository);
-        creditCardService = new CreditCardServiceImpl(creditCardBaseEntityRepository);
+        accountService = new AccountServiceImpl(accountBaseEntityRepository/*, accountRepository*/);
+        creditCardService = new CreditCardServiceImpl(creditCardBaseEntityRepository, creditCardRepository);
+        loanCreditCardService = new LoanCreditCardServiceImpl(loanCreditCardBaseEntityRepository);
 
         //menu
         this.loginMenu = new LoginMenu(studentService,
                 cityService, universityService);
-        this.loanMenu = new LoanMenu(termService, loanService, bankService, accountService, creditCardService);
+        this.loanMenu = new LoanMenu(termService, loanService, bankService, accountService, creditCardService, loanCreditCardService);
         this.studentMenu = new StudentMenu(loanMenu);
         this.mainMenu = new MainMenu(loginMenu, loanMenu, studentMenu);
     }

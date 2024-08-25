@@ -21,7 +21,7 @@ public class University extends BaseEntity {
     public static final String NAME = "name";
     public static final String TYPE_OF_UNIVERSITY = "type_of_university";
 
-    @Column(name = NAME)
+    @Column(name = NAME,unique = true)
     String name;
 
     @ManyToOne(fetch = FetchType.LAZY)

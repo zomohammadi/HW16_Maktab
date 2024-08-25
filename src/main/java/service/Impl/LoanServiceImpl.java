@@ -24,6 +24,8 @@ public class LoanServiceImpl implements LoanService {
             return loanRepository.findLoanForStudentInTerm(year, termType, student, loanType);
         } catch (PersistenceException e) {
             throw new LoanExceptions.DatabaseAccessException(e.getMessage());
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
         }
     }
 

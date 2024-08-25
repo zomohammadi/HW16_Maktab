@@ -22,10 +22,9 @@ public class CreditCard extends BaseEntity {
     public static final String EXPIRATION_DATE = "expiration_date";
 
     @OneToOne
-    @PrimaryKeyJoinColumn
     Account account;
 
-    @Column(name = CARD_NUMBER)
+    @Column(name = CARD_NUMBER,unique = true)
     String cardNumber;
 
     @Column(name = CVV2)

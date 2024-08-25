@@ -28,6 +28,6 @@ public class Account extends BaseEntity {
     @Column(name = BALANCE)
     Double balance;
 
-    @Column(name = ACCOUNT_NUMBER)
+    @Column(name = ACCOUNT_NUMBER,unique = true)
     int accountNumber;
 }

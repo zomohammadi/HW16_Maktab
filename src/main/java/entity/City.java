@@ -20,7 +20,7 @@ import lombok.experimental.SuperBuilder;
 public class City extends BaseEntity {
     public static final String NAME = "name";
     public static final String TYPE_OF_CITY = "type_Of_city";
-    @Column(name = NAME)
+    @Column(name = NAME,unique = true)
     String name;
 
     @Column(name = TYPE_OF_CITY)

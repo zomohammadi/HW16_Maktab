@@ -7,6 +7,8 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 
+import java.util.Set;
+
 @SuperBuilder
 @Entity
 
@@ -21,8 +23,8 @@ public class Loan extends BaseEntity {
     public static final String DEGREE = "degree";
 
     @Column(name = LOAN_TYPE)
+    @Enumerated(EnumType.STRING)
     LoanType loanType;
-
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn
@@ -38,4 +40,5 @@ public class Loan extends BaseEntity {
     @Column(name = DEGREE)
     @Enumerated(EnumType.STRING)
     Degree degree;
+
 }

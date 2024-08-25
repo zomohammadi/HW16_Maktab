@@ -39,11 +39,15 @@ public class StudentMenu {
                 switch (option) {
                     case 1 -> {
                         // LocalDate currentDate = getDate(date -> null);
-                        LocalDate currentDate = getDate(date -> LocalDate.of(2023, 10, 21));
+                        //LocalDate currentDate = getDate(date -> LocalDate.of(2023, 10, 22));
+                        LocalDate currentDate = getDate(date -> LocalDate.of(2024, 10, 24));
                         if (!(isAbanRange(currentDate) || isBahmanRange(currentDate))) {
                             System.out.println("You are not allowed to register a loan! Take action within the announced time frame!");
                         } else {
-                            loanMenu.showTweetMenu(token, currentDate);
+                            if (token != null) {
+                                // continueRunning=false;
+                                loanMenu.showLoanMenu(token, currentDate);
+                            }
                         }
                     }
                     // case 2 -> continueRunning = !signUp(input);
