@@ -1,6 +1,7 @@
 package menu;
 
 import entity.*;
+import enumaration.AdmissionType;
 import enumaration.Degree;
 import enumaration.LoanType;
 import enumaration.TermType;
@@ -51,12 +52,11 @@ public class LoanMenu {
                 break;
             }
             try {
-                Integer option = Integer.parseInt(stringOption);
+                int option = Integer.parseInt(stringOption);
 
                 switch (option) {
-                    case 1 -> registerEducationLoan(token, currentDate, input);
-
-                //case 2 -> registerTuitionLoan(token, currentDate, input);
+                    case 1 -> registerEducationLoan(token, currentDate, input, LoanType.Education);
+                    case 2 -> registerTuitionLoan(token, currentDate, input);
                     /* case 3 -> */
                     case 4 -> continueRunning = false;
                     default -> System.out.println("Wrong option!");
@@ -71,13 +71,20 @@ public class LoanMenu {
 
     private void registerTuitionLoan(Student token, LocalDate currentDate, Scanner input) {
 
+        //-------------------------------------------------------------------------
+        if (token.getAdmissionType() == AdmissionType.Daytime) {
+            System.out.println("you are not authorise to select the Tuition Loan");
+            return;
+        }
+        registerEducationLoan(token, currentDate, input, LoanType.TuitionFee);
+
     }
 
-    private void registerEducationLoan(Student token, LocalDate currentDate, Scanner input) {
+    private void registerEducationLoan(Student token, LocalDate currentDate, Scanner input, LoanType loanType) {
         String termType;
         termType = getCurrentTermType(currentDate);
-        if (checkStudentGetLoanInTermOfYear(token, currentDate, termType, String.valueOf(LoanType.Education)))
-            return ;
+        if (checkStudentGetLoanInTermOfYear(token, currentDate, termType, String.valueOf(loanType)))
+            return;
 
         //-------------------------------------------------------------------------
         //get credit card from student:
@@ -145,17 +152,18 @@ public class LoanMenu {
             termAfterSaveInDB = termService.save(term);
         } catch (Exception e) {
             System.out.println(e.getMessage());
-            return ;
+            return;
         }
         Degree degree = token.getDegree();
-        Double amountOfLoan = getAmountOfLoan(degree);
+        Double amountOfLoan = getAmountOfLoan(degree, loanType);
 
 
-        Loan loan = Loan.builder().loanType(LoanType.Education).student(token).amount(amountOfLoan)
+        Loan loan = Loan.builder().loanType(loanType).student(token).amount(amountOfLoan)
                 .degree(degree).term(termAfterSaveInDB).build();
         Loan loanAfterSave = loanService.save(loan);
         //update account
-        account.setBalance(amountOfLoan);
+        if (account != null)
+            account.setBalance(amountOfLoan);
         accountService.save(account);
         //-------------------------------------------------------------------------
         //add new table with card loanAfterSave --> id_crd and id_loan loan_creditCard
@@ -211,14 +219,30 @@ public class LoanMenu {
         return conditions;
     }
 
-    private static Double getAmountOfLoan(Degree degree) {
-        Double amountOfLoan;
-        switch (degree) {
-            case Associate, Continuous_Bachelor,
-                    DisContinuous_Bachelor -> amountOfLoan = 1900000.0;
-            case IntegratedMaster, DisContinuousMaster, ProfessionalDoctorate,
-                    IntegratedDoctorate -> amountOfLoan = 2250000.0;
-            case PhD -> amountOfLoan = 2600000.0;
+    private static Double getAmountOfLoan(Degree degree, LoanType loanType) {
+        double amountOfLoan = 0;
+        switch (loanType) {
+            case Education -> {
+                switch (degree) {
+                    case Associate, Continuous_Bachelor,
+                            DisContinuous_Bachelor -> amountOfLoan = 1900000.0;
+                    case IntegratedMaster, DisContinuousMaster, ProfessionalDoctorate,
+                            IntegratedDoctorate -> amountOfLoan = 2250000.0;
+                    case PhD -> amountOfLoan = 2600000.0;
+                    default -> amountOfLoan = 0.0;
+                }
+
+            }
+            case TuitionFee -> {
+                switch (degree) {
+                    case Associate, Continuous_Bachelor,
+                            DisContinuous_Bachelor -> amountOfLoan = 1300000.0;
+                    case IntegratedMaster, DisContinuousMaster, ProfessionalDoctorate,
+                            IntegratedDoctorate -> amountOfLoan = 2600000.0;
+                    case PhD -> amountOfLoan = 65000000.0;
+                    default -> amountOfLoan = 0.0;
+                }
+            }
             default -> amountOfLoan = 0.0;
         }
         return amountOfLoan;
@@ -322,14 +346,6 @@ public class LoanMenu {
         return fillInputNumbers_v2(input);
     }
 
-   /* private boolean fillInputNumbersWithMinAndMaxNumber(String input, int minDigit, int maxDigit) {
-        if (checkedNullInput(input)) return false;
-        if (input.length() > maxDigit || input.length() < minDigit) {
-            System.out.println("input must be between " + minDigit + " and " + maxDigit + " digit number");
-            return false;
-        }
-        return fillInputNumbers_v2(input);
-    }*/
 
     private boolean fillInputNumbersWithMinAndMaxDate(String input, int minDigit, int maxDigit) {
         if (checkedNullInput(input)) return false;
@@ -376,22 +392,6 @@ public class LoanMenu {
         }
         return false;
     }
-/*
-    private Integer checkNumber(Scanner input) {
-        String id = input.nextLine();
-        if (id == null || id.isEmpty()) {
-            System.out.println("Input can not be null or empty");
-            return null;
-        }
-        char[] chars = id.toCharArray();
-        for (char c : chars) {
-            if (!Character.isDigit(c)) {
-                System.out.println("Input must contain only digit between (0-9)");
-                return null;
-            }
-        }
-        return Integer.valueOf(id);
-    }*/
 
     private boolean isBahmanRange(LocalDate currentDate) {
         LocalDate startOfRange = LocalDate.of(currentDate.getYear(), Month.FEBRUARY, 13);
