@@ -20,21 +20,8 @@ public class ApplicationContext {
     private EntityManager em;
 
 
-    private final StudentService studentService;
-    private final UniversityService universityService;
-    private final CityService cityService;
-    private final TermService termService;
-    private final LoanService loanService;
-    private final BankService bankService;
-    private final AccountService accountService;
-    private final CreditCardService creditCardService;
-    private final LoanCreditCardService loanCreditCardService;
-
     //menu
     private final MainMenu mainMenu;
-    private final LoginMenu loginMenu;
-    private final LoanMenu loanMenu;
-    private final StudentMenu studentMenu;
 
 
     public ApplicationContext() {
@@ -45,7 +32,6 @@ public class ApplicationContext {
         BaseEntityRepositoryImpl<University> universityBaseEntityRepository = new UniversityRepositoryImpl(em);
         UniversityRepository universityRepository = new UniversityRepositoryImpl(em);
         BaseEntityRepository<City> cityBaseEntityRepository = new CityRepositoryImpl(em);
-        TermRepository termRepository = new TermRepositoryImpl(em);
         BaseEntityRepository<Term> termBaseEntityRepository = new TermRepositoryImpl(em);
         LoanRepository loanRepository = new LoanRepositoryImpl(em);
         BaseEntityRepository<Loan> loanBaseEntityRepository = new LoanRepositoryImpl(em);
@@ -54,23 +40,25 @@ public class ApplicationContext {
         BaseEntityRepository<CreditCard> creditCardBaseEntityRepository = new CreditCardRepositoryImp(em);
         BaseEntityRepository<LoanCreditCard> loanCreditCardBaseEntityRepository = new LoanCreditCardRepositoryImp(em);
         CreditCardRepository creditCardRepository = new CreditCardRepositoryImp(em);
-       // AccountRepository accountRepository = new AccountRepositoryImp(em);
+        BaseEntityRepository<MortgageDetail> mortgageDetailBaseEntityRepository = new MortgageDetailRepositoryImp(em);
 
-        studentService = new StudentServiceImpl(studentBaseEntityRepository, studentRepository);
-        universityService = new UniversityServiceImpl(universityBaseEntityRepository, universityRepository);
-        cityService = new CityServiceImpl(cityBaseEntityRepository);
-        termService = new TermServiceImpl(termBaseEntityRepository);
-        loanService = new LoanServiceImpl(loanRepository, loanBaseEntityRepository);
-        bankService = new BankServiceImpl(bankRepository);
-        accountService = new AccountServiceImpl(accountBaseEntityRepository/*, accountRepository*/);
-        creditCardService = new CreditCardServiceImpl(creditCardBaseEntityRepository, creditCardRepository);
-        loanCreditCardService = new LoanCreditCardServiceImpl(loanCreditCardBaseEntityRepository);
+        StudentService studentService = new StudentServiceImpl(studentBaseEntityRepository, studentRepository);
+        UniversityService universityService = new UniversityServiceImpl(universityBaseEntityRepository, universityRepository);
+        CityService cityService = new CityServiceImpl(cityBaseEntityRepository);
+        TermService termService = new TermServiceImpl(termBaseEntityRepository);
+        LoanService loanService = new LoanServiceImpl(loanRepository, loanBaseEntityRepository);
+        BankService bankService = new BankServiceImpl(bankRepository);
+
+        AccountService accountService = new AccountServiceImpl(accountBaseEntityRepository);
+        CreditCardService creditCardService = new CreditCardServiceImpl(creditCardBaseEntityRepository, creditCardRepository);
+        LoanCreditCardService loanCreditCardService = new LoanCreditCardServiceImpl(loanCreditCardBaseEntityRepository);
+        MortgageDetailService mortgageDetailService = new MortgageDetailServiceImpl(mortgageDetailBaseEntityRepository);
 
         //menu
-        this.loginMenu = new LoginMenu(studentService,
+        LoginMenu loginMenu = new LoginMenu(studentService,
                 cityService, universityService);
-        this.loanMenu = new LoanMenu(termService, loanService, bankService, accountService, creditCardService, loanCreditCardService);
-        this.studentMenu = new StudentMenu(loanMenu);
+        LoanMenu loanMenu = new LoanMenu(termService, loanService, bankService, accountService, creditCardService, loanCreditCardService, studentService, mortgageDetailService);
+        StudentMenu studentMenu = new StudentMenu(loanMenu);
         this.mainMenu = new MainMenu(loginMenu, loanMenu, studentMenu);
     }
 
@@ -98,45 +86,10 @@ public class ApplicationContext {
         return em;
     }
 
-    public StudentService getStudentService() {
-        return studentService;
-    }
-
-    public UniversityService getUniversityService() {
-        return universityService;
-    }
-
-    public CityService getCityService() {
-        return cityService;
-    }
-
-    public LoanService getLoanService() {
-        return loanService;
-    }
-
-    public BankService getBankService() {
-        return bankService;
-    }
     //menu
 
     public MainMenu getMainMenu() {
         return mainMenu;
     }
 
-    public LoginMenu getLoginMenu() {
-        return loginMenu;
-    }
-
-    public LoanMenu getLoanMenu() {
-        return loanMenu;
-    }
-
-    public StudentMenu getStudentMenu() {
-        return studentMenu;
-    }
-
-
-    public TermService getTermService() {
-        return termService;
-    }
 }

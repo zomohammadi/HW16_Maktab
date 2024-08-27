@@ -1,16 +1,13 @@
 package exceptions;
 
 public class LoanExceptions {
-    public static class DatabaseAccessException extends RuntimeException {
-        public DatabaseAccessException() {
-            super();
-        }
+    public static class NotFoundException extends RuntimeException {
 
-        public DatabaseAccessException(String message) {
+        public NotFoundException(String message) {
             super(message);
         }
 
-        public DatabaseAccessException(String message, Throwable cause) {
+        public NotFoundException(String message, Throwable cause) {
             super(message, cause);
         }
     }

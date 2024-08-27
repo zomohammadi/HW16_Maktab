@@ -1,14 +1,13 @@
 package menu;
 
 import entity.*;
-import enumaration.AdmissionType;
-import enumaration.Degree;
-import enumaration.LoanType;
-import enumaration.TermType;
+import enumaration.*;
 import exceptions.CreditCardExceptions;
 import exceptions.LoanExceptions;
+import exceptions.StudentExceptions;
 import jakarta.persistence.Tuple;
 import service.*;
+import util.ApplicationContext;
 
 import java.time.LocalDate;
 import java.time.Month;
@@ -22,14 +21,18 @@ public class LoanMenu {
     private final AccountService accountService;
     private final CreditCardService creditCardService;
     private final LoanCreditCardService loanCreditCardService;
+    private final StudentService studentService;
+    private final MortgageDetailService mortgageDetailService;
 
-    public LoanMenu(TermService termService, LoanService loanService, BankService bankService, AccountService accountService, CreditCardService creditCardService, LoanCreditCardService loanCreditCardService) {
+    public LoanMenu(TermService termService, LoanService loanService, BankService bankService, AccountService accountService, CreditCardService creditCardService, LoanCreditCardService loanCreditCardService, StudentService studentService, MortgageDetailService mortgageDetailService) {
         this.termService = termService;
         this.loanService = loanService;
         this.bankService = bankService;
         this.accountService = accountService;
         this.creditCardService = creditCardService;
         this.loanCreditCardService = loanCreditCardService;
+        this.studentService = studentService;
+        this.mortgageDetailService = mortgageDetailService;
     }
 
 
@@ -57,7 +60,53 @@ public class LoanMenu {
                 switch (option) {
                     case 1 -> registerEducationLoan(token, currentDate, input, LoanType.Education);
                     case 2 -> registerTuitionLoan(token, currentDate, input);
-                    /* case 3 -> */
+                    case 3 -> //registerMortgage(token,currentDate,input);
+                    {
+                        if (!token.isMarried()) {
+                            System.out.println("You are not permit to Register Mortgage");
+                        } else {
+                            if (token.isHaveDormitory()) {
+                                System.out.println("You are not permit to Register Mortgage! because you have Dormitory");
+                            }
+                        }
+                        Loan loan;
+                        Student student = null;
+                        try {
+                            loan = loanService.findStudentMortgage(token, token.getDegree(), LoanType.Mortgage);
+                            if (loan != null) {
+                                System.out.println("You are currently getting a mortgage at this point");
+                                return;
+                            }
+                        } catch (LoanExceptions.NotFoundException e) {
+                            try {
+                                student = studentService.findStudentByNationalCode(token.getPartnerCode());
+
+                                //refresh student to ensure this is up-to-date
+                                ApplicationContext.getInstance().getEntityManager().refresh(student);
+                            } catch (StudentExceptions.NotFoundException e3) {
+
+                                System.out.println("0000000000000");
+                                loanOperation(token, input, currentDate);
+                                System.out.println("0000000000000");
+
+                            }
+                            if (student != null) {
+                                try {
+                                    loan = loanService.findStudentMortgage(student, student.getDegree(), LoanType.Mortgage);
+                                    if (loan != null) {
+                                        System.out.println("""
+                                                Your partner received a mortgage while studying
+                                                Therefore, you are not allowed to get a mortgage.
+                                                         """);
+                                        return;
+                                    }
+                                } catch (LoanExceptions.NotFoundException e1) {
+                                    loanOperation(token, input, currentDate);
+
+                                }
+                            }
+                        }
+                    }
                     case 4 -> continueRunning = false;
                     default -> System.out.println("Wrong option!");
                 }
@@ -67,6 +116,91 @@ public class LoanMenu {
                 }
             }
         }
+    }
+
+    private void loanOperation(Student token, Scanner input, LocalDate currentDate) {
+        Loan loan;
+        Double amountOfLoan = getAmountOfLoan(
+                token.getUniversity().getCity().getTypeOfCity()
+                , token);
+        String contractNumber;
+        String address;
+        do {
+            System.out.print("Enter the Contract Number (13 digit): ");
+            contractNumber = input.nextLine();
+        } while (!fillInputNumbers(contractNumber, 13));
+        do {
+            System.out.print("Enter the address: ");
+            address = input.nextLine();
+        } while (!fillInputString(address));
+
+        //get CreditCard
+        boolean conditions;
+        String cardNumber;
+        String cvv2 = null;
+        LocalDate expirationDate = null;
+        CreditCard creditCard = null;
+        Account account;
+        do {
+            conditions = false;
+            cardNumber = enterCardNumber(input);
+            try {
+                Tuple result = creditCardService.findByCardNumber(cardNumber);
+                creditCard = result.get("creditCard", CreditCard.class);
+                // account = result.get("account", Account.class);
+            } catch (CreditCardExceptions.NotFoundException e6) {
+                cvv2 = enterCvv2(input);
+                boolean expireDateCondition = true;
+                do {
+                    try {
+                        expirationDate = enterExpirationDate(input);
+                    } catch (Exception e4) {
+                        System.out.println("invalid number! input the number");
+                    }
+                    if (expirationDate != null) expireDateCondition = false;
+                } while (expireDateCondition);
+
+                conditions = checkCardIsExpired(currentDate,
+                        false, expirationDate);
+                if (conditions)
+                    System.out.println("Enter the Card Number that is not expired");
+
+            }
+
+        } while (conditions);
+
+        if (creditCard == null) {
+            //-------------------------------------------------------------------------
+            //get bank
+            String bankName = enterBankName(input);
+
+            Bank bank = bankService.findByName(bankName);
+            //------------------------------------------------------------------------------
+            //get account number and create Account Object and save in DB
+            account = Account.builder().student(token).bank(bank).build();
+
+            //--------------create object credit card and save in DB:
+            creditCard = CreditCard.builder().account(account).cardNumber(cardNumber)
+                    .cvv2(cvv2).expirationDate(expirationDate).build();
+
+            accountService.save(account);
+            creditCard = creditCardService.save(creditCard);
+            System.out.println("creditCard save ");
+        }
+
+        loan = Loan.builder().loanType(LoanType.Mortgage).student(token)
+                .amount(amountOfLoan).degree(token.getDegree()).build();
+        loan = loanService.save(loan);
+        MortgageDetail mortgageDetail = MortgageDetail.builder().loan(loan).address(address)
+                .contractNumber(contractNumber).build();
+        LoanCreditCard loanCreditCard = LoanCreditCard.builder()
+                .creditCard(creditCard).loan(loan).build();
+        mortgageDetailService.save(mortgageDetail);
+        loanCreditCardService.save(loanCreditCard);
+
+        //create payment table of this loan
+        ///TO//DO
+        System.out.println("The operation was successful.");
     }
 
     private void registerTuitionLoan(Student token, LocalDate currentDate, Scanner input) {
@@ -103,7 +237,7 @@ public class LoanMenu {
             try {
                 Tuple result = creditCardService.findByCardNumber(cardNumber);
                 creditCard = result.get("creditCard", CreditCard.class);
-                account = result.get("account", Account.class);
+                //  account = result.get("account", Account.class);
             } catch (CreditCardExceptions.NotFoundException e6) {
                 cvv2 = enterCvv2(input);
                 boolean expireDateCondition = true;
@@ -116,7 +250,7 @@ public class LoanMenu {
                     if (expirationDate != null) expireDateCondition = false;
                 } while (expireDateCondition);
 
-                conditions = checkCardIsExpired(currentDate, conditions, expirationDate);
+                conditions = checkCardIsExpired(currentDate, false, expirationDate);
                 if (conditions) System.out.println("Enter the Card Number that is not expired");
 
             }
@@ -202,25 +336,25 @@ public class LoanMenu {
         return expirationDate;
     }
 
-    private static boolean checkCardIsExpired(LocalDate currentDate, boolean conditions, LocalDate expirationDate) {
+    private boolean checkCardIsExpired(LocalDate currentDate, boolean conditions, LocalDate expirationDate) {
         if (currentDate.getYear() < expirationDate.getYear()) {
-            System.out.println();
+            System.out.print("");
         } else if (currentDate.getYear() == expirationDate.getYear()) {
             if (currentDate.getMonthValue() < expirationDate.getDayOfMonth()) {
-                System.out.println();
+                System.out.print("");
             } else if (currentDate.getMonthValue() == expirationDate.getDayOfMonth()) {
                 if (currentDate.getDayOfMonth() <= expirationDate.getDayOfMonth()) System.out.println();
+                System.out.print("");
             }
         } else {
             System.out.println("your card is expired! Please Enter an unexpired card");
             conditions = true;
         }
-
         return conditions;
     }
 
-    private static Double getAmountOfLoan(Degree degree, LoanType loanType) {
-        double amountOfLoan = 0;
+    private Double getAmountOfLoan(Degree degree, LoanType loanType) {
+        double amountOfLoan;
         switch (loanType) {
             case Education -> {
                 switch (degree) {
@@ -248,25 +382,56 @@ public class LoanMenu {
         return amountOfLoan;
     }
 
-    private String enterBankName(Scanner input) {
-        boolean conditions = true;
-        String bankName;
-        do {
-            do {
-                System.out.print("""
-                        enter the Bank name :
-                        Meli
-                        Refah
-                        Tejarat
-                        Maskan
-                        """);
-                bankName = input.nextLine();
-            } while (!fillInputString(bankName));
+    private Double getAmountOfLoan(TypeOfCity typeOfCity, Student student) {
+        double amountOfLoan;
+        // if (loanType == LoanType.Mortgage) {
+        switch (typeOfCity) {
+            case Metropolis -> {
+                if (student.getUniversity().getCity().getName().equalsIgnoreCase("tehran"))
+                    amountOfLoan = 32000000.0;
+                else amountOfLoan = 26000000.0;
+            }
+            case OtherCities -> amountOfLoan = 19500000.0;
+            default -> amountOfLoan = 0.0;
+        }
+        //   }
+        return amountOfLoan;
+    }
 
-            if (bankName.equals("Meli") || bankName.equals("Refah") || bankName.equals("Tejarat")
-                || bankName.equals("Maskan")) {
-                System.out.println("Enter the bank name of list!");
-                conditions = false;
+    private String enterBankName(Scanner input) {
+        boolean conditions;
+        String bankName = "";
+        String bankNameInput;
+        do {
+            System.out.print("""
+                    enter the Bank name :
+                    Meli (Enter 0)
+                    Refah (Enter 1)
+                    Tejarat (Enter 2)
+                    Maskan (Enter 3)
+                    """);
+            bankNameInput = input.nextLine();
+            switch (bankNameInput) {
+                case "0" -> {
+                    bankName = "Meli";
+                    conditions = false;
+                }
+                case "1" -> {
+                    bankName = "Refah";
+                    conditions = false;
+                }
+                case "2" -> {
+                    bankName = "Tejarat";
+                    conditions = false;
+                }
+                case "3" -> {
+                    bankName = "Maskan";
+                    conditions = false;
+                }
+                default -> {
+                    System.out.println("Enter the valid number: ");
+                    conditions = true;
+                }
             }
 
 
@@ -274,7 +439,28 @@ public class LoanMenu {
         return bankName;
     }
 
+    /*
+     do {
+                do {
+                    System.out.print("""
+                            enter the Bank name :
+                            Meli
+                            Refah
+                            Tejarat
+                            Maskan
+                            """);
+                    bankName = input.nextLine();
+                } while (!fillInputString(bankName));
 
+                if (bankName.equals("Meli") || bankName.equals("Refah") || bankName.equals("Tejarat")
+                    || bankName.equals("Maskan")) {
+                    System.out.println("Enter the bank name of list!");
+                    conditions = false;
+                }
+
+
+            } while (conditions);
+     */
     private String enterCvv2(Scanner input) {
         String cvv2;
         do {
@@ -287,20 +473,21 @@ public class LoanMenu {
     private String enterCardNumber(Scanner input) {
         String cardNumber;
         do {
-            System.out.print("Enter the CardNumber (6 digit): ");
+            System.out.print("Enter the CardNumber (16 digit): ");
             cardNumber = input.nextLine();
-        } while (!fillInputNumbers(cardNumber, 6));
+        } while (!fillInputNumbers(cardNumber, 16));
         return cardNumber;
     }
 
 
-    private boolean checkStudentGetLoanInTermOfYear(Student token, LocalDate currentDate, String termType, String loanType) {
+    private boolean checkStudentGetLoanInTermOfYear(Student token, LocalDate currentDate, String termType, String
+            loanType) {
         try {
             loanService.findLoanForStudentInTerm(currentDate.getYear(),
                     termType, token, loanType);
             System.out.println("You have received a loan this semester");
             return true;
-        } catch (LoanExceptions.DatabaseAccessException e) {
+        } catch (LoanExceptions.NotFoundException e) {
             System.out.println(e.getMessage());
             System.out.println("this student has not received a loan this semester");
         } catch (Exception e) {

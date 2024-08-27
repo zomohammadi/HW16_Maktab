@@ -35,6 +35,8 @@ public class Student extends BaseEntity {
     public static final String USERNAME = "username";
     public static final String PASSWORD = "password";
 
+    public static final String HAVE_DORMITORY = "have_dormitory";
+
     @Column(name = FIRST_NAME)
 
     String firstName;
@@ -51,10 +53,10 @@ public class Student extends BaseEntity {
     @Column(name = BIRTH_CERTIFICATE_NUMBER)
     String birthCertificateNumber;
 
-    @Column(name = NATIONAL_CODE,unique = true)
+    @Column(name = NATIONAL_CODE, unique = true)
     String nationalCode;
 
-    @Column(name = STUDENT_CODE,unique = true)
+    @Column(name = STUDENT_CODE, unique = true)
     String studentCode;
 
     @Column(name = ENTRY_YEAR)
@@ -70,7 +72,10 @@ public class Student extends BaseEntity {
     @Column(name = IS_MARRIED)
     boolean isMarried;
 
-    @Column(name = PARTNER_CODE,unique = true)
+    @Column(name = HAVE_DORMITORY)
+    boolean haveDormitory;
+
+    @Column(name = PARTNER_CODE, unique = true)
     String partnerCode;
 
     @Column(name = ADMISSION_TYPE)
@@ -81,7 +86,7 @@ public class Student extends BaseEntity {
     @JoinColumn
     University university;
 
-    @Column(name = USERNAME,unique = true)
+    @Column(name = USERNAME, unique = true)
     String userName;
 
     @Column(name = PASSWORD)

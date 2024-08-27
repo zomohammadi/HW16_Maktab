@@ -2,13 +2,8 @@ package service.Impl;
 
 import entity.Student;
 import exceptions.StudentExceptions;
-import jakarta.persistence.EntityExistsException;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceException;
-import jakarta.persistence.TransactionRequiredException;
-import org.passay.CharacterData;
-import org.passay.CharacterRule;
-import org.passay.EnglishCharacterData;
-import org.passay.PasswordGenerator;
 import repository.BaseEntityRepository;
 import repository.StudentRepository;
 import service.StudentService;
@@ -24,7 +19,6 @@ public class StudentServiceImpl implements StudentService {
     }
 
 
-
     @Override
     public Student save(Student student) {
 
@@ -35,13 +29,7 @@ public class StudentServiceImpl implements StudentService {
 
             student = studentBaseEntityRepository.save(student);
 
-        } catch (IllegalArgumentException e) {
-            throw new StudentExceptions.StudentIllegalArgumentException("Invalid argument passed", e);
-        } catch (EntityExistsException e) {
-            throw new StudentExceptions.StudentEntityExistsException("Entity already exists in the database", e);
-        } catch (TransactionRequiredException e) {
-            throw new StudentExceptions.StudentTransactionRequiredException("Transaction is required but was not active", e);
-        } catch (PersistenceException e) {
+        }catch (PersistenceException e) {
             throw new StudentExceptions.DatabaseAccessException("Database access error occurred while saving in", e);
         } catch (NullPointerException e) {
             throw new StudentExceptions.StudentNullPointerException("A required object was null", e);
@@ -58,13 +46,11 @@ public class StudentServiceImpl implements StudentService {
             Student student = studentRepository.login(username, password);
 
             if (student == null) {
-                throw new StudentExceptions.UserNotFoundException("User not found with the provided credentials");
+                throw new StudentExceptions.NotFoundException("User not found with the provided credentials");
             }
 
             return student;
 
-        } catch (IllegalArgumentException e) {
-            throw new StudentExceptions.InvalidCredentialsException("Invalid credentials provided", e);
         } catch (PersistenceException e) {
             throw new StudentExceptions.DatabaseAccessException(e.getMessage());
         } catch (Exception e) {
@@ -79,7 +65,20 @@ public class StudentServiceImpl implements StudentService {
         try {
 
             return studentRepository.existsNationalCode(nationalCode);
-        }catch (PersistenceException e){
+        } catch (NoResultException e) {
+            throw new StudentExceptions.NotFoundException(e.getMessage());
+        } catch (PersistenceException e) {
+            throw new StudentExceptions.DatabaseAccessException(e.getMessage());
+        }
+    }
+
+    @Override
+    public Student findStudentByNationalCode(String nationalCode) {
+        try {
+            return studentRepository.findStudentByNationalCode(nationalCode);
+        } catch (NoResultException e) {
+            throw new StudentExceptions.NotFoundException(e.getMessage());
+        } catch (PersistenceException e) {
             throw new StudentExceptions.DatabaseAccessException(e.getMessage());
         }
     }

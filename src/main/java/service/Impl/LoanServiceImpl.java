@@ -2,7 +2,10 @@ package service.Impl;
 
 import entity.Loan;
 import entity.Student;
+import enumaration.Degree;
+import enumaration.LoanType;
 import exceptions.LoanExceptions;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceException;
 import repository.BaseEntityRepository;
 import repository.LoanRepository;
@@ -23,7 +26,7 @@ public class LoanServiceImpl implements LoanService {
 
             return loanRepository.findLoanForStudentInTerm(year, termType, student, loanType);
         } catch (PersistenceException e) {
-            throw new LoanExceptions.DatabaseAccessException(e.getMessage());
+            throw new LoanExceptions.NotFoundException(e.getMessage());
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
@@ -33,4 +36,17 @@ public class LoanServiceImpl implements LoanService {
     public Loan save(Loan loan) {
         return loanBaseEntityRepository.save(loan);
     }
+
+    @Override
+    public Loan findStudentMortgage(Student student, Degree degree, LoanType loanType) {
+        try {
+            return loanRepository.findStudentMortgage(student, degree, loanType);
+        } catch (NoResultException e) {
+            throw new LoanExceptions.NotFoundException(e.getMessage());
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+
 }

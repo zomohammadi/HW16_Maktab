@@ -34,7 +34,7 @@ public class StudentMenu {
                 break;
             }
             try {
-                Integer option = Integer.parseInt(stringOption);
+                int option = Integer.parseInt(stringOption);
 
                 switch (option) {
                     case 1 -> {

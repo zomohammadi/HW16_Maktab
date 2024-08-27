@@ -7,4 +7,5 @@ public interface StudentService {
     Student save(Student student);
     Student login(String username, String password);
     boolean existsNationalCode(String nationalCode);
+    Student findStudentByNationalCode(String nationalCode);
 }

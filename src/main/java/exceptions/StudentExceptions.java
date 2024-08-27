@@ -29,33 +29,20 @@ public class StudentExceptions {
         }
     }
 
-    public static class StudentEntityExistsException extends RuntimeException {
-        public StudentEntityExistsException() {
+    public static class NotFoundException extends RuntimeException {
+        public NotFoundException() {
             super();
         }
 
-        public StudentEntityExistsException(String message) {
+        public NotFoundException(String message) {
             super(message);
         }
 
-        public StudentEntityExistsException(String message, Throwable cause) {
+        public NotFoundException(String message, Throwable cause) {
             super(message, cause);
         }
     }
 
-    public static class StudentTransactionRequiredException extends RuntimeException {
-        public StudentTransactionRequiredException() {
-            super();
-        }
-
-        public StudentTransactionRequiredException(String message) {
-            super(message);
-        }
-
-        public StudentTransactionRequiredException(String message, Throwable cause) {
-            super(message, cause);
-        }
-    }
 
     public static class DatabaseAccessException extends RuntimeException {
         public DatabaseAccessException() {
@@ -69,35 +56,6 @@ public class StudentExceptions {
         public DatabaseAccessException(String message, Throwable cause) {
             super(message, cause);
         }
+
     }
-
-    public static class UserNotFoundException extends RuntimeException {
-        public UserNotFoundException() {
-            super();
-        }
-
-        public UserNotFoundException(String message) {
-            super(message);
-        }
-
-        public UserNotFoundException(String message, Throwable cause) {
-            super(message, cause);
-        }
-    }
-
-    public static class InvalidCredentialsException extends RuntimeException {
-        public InvalidCredentialsException() {
-            super();
-        }
-
-        public InvalidCredentialsException(String message) {
-            super(message);
-        }
-
-        public InvalidCredentialsException(String message, Throwable cause) {
-            super(message, cause);
-        }
-    }
-
-
 }

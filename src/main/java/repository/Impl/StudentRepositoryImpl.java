@@ -33,4 +33,12 @@ public class StudentRepositoryImpl extends BaseEntityRepositoryImpl<Student> imp
         Student student = query.getSingleResult();
         return student != null;
     }
+
+    @Override
+    public Student findStudentByNationalCode(String nationalCode) {
+        TypedQuery<Student> query = getEntityManager()
+                .createQuery("select s from Student s where s.nationalCode = ?1 ", Student.class);
+        query.setParameter(1, nationalCode);
+        return query.getSingleResult();
+    }
 }

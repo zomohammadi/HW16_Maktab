@@ -48,7 +48,7 @@ public class LoginMenu {
                 break;
             }
             try {
-                Integer option = Integer.parseInt(stringOption);
+                int option = Integer.parseInt(stringOption);
 
                 switch (option) {
                     case 1 -> continueRunning = !login(input);
@@ -104,8 +104,9 @@ public class LoginMenu {
         String admissionType = null;
         City city = null;
         boolean isMarried = false;
+        boolean haveDormitory = false;
 
-        boolean continues = false;
+        boolean continues ;
         do {
             System.out.print("Enter the FirstName: ");
             firstName = input.nextLine();
@@ -136,9 +137,12 @@ public class LoginMenu {
                 System.out.println("the student with national code are exists! ");
                 return false;
             }
-        } catch (StudentExceptions.DatabaseAccessException e) {
+        } catch (StudentExceptions.NotFoundException e) {
             System.out.println();
+        }catch (StudentExceptions.DatabaseAccessException e) {
+            System.out.println(e.getMessage());
         }
+
         do {
             System.out.print("Enter the STUDENT CODE (5 digit): ");
             studentCode = input.nextLine();
@@ -246,6 +250,25 @@ public class LoginMenu {
                 System.out.println("Enter the PARTNER CODE: ");
                 partnerCode = input.nextLine();
             } while (!fillInputNumbers(partnerCode, 10));
+            do {
+                System.out.println("have Dormitory? (Enter 0 for No and 1 for Yes)");
+                String haveDormitoryInput = input.nextLine();
+                switch (haveDormitoryInput) {
+                    case "0" -> {
+                        haveDormitory = false;
+                        continues = false;
+                    }
+
+                    case "1" -> {
+                        haveDormitory = true;
+                        continues = false;
+                    }
+                    default -> {
+                        System.out.println("Enter the valid number: ");
+                        continues = true;
+                    }
+                }
+            } while (continues);
         }
 
         do {
@@ -449,22 +472,6 @@ public class LoginMenu {
             return true;
         }
         return false;
-    }
-
-    private Integer checkNumber(Scanner input) {
-        String id = input.nextLine();
-        if (id == null || id.isEmpty()) {
-            System.out.println("Input can not be null or empty");
-            return null;
-        }
-        char[] chars = id.toCharArray();
-        for (char c : chars) {
-            if (!Character.isDigit(c)) {
-                System.out.println("Input must contain only digit between (0-9)");
-                return null;
-            }
-        }
-        return Integer.valueOf(id);
     }
 
 

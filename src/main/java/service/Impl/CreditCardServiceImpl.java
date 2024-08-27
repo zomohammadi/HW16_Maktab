@@ -2,8 +2,7 @@ package service.Impl;
 
 import entity.CreditCard;
 import exceptions.CreditCardExceptions;
-import jakarta.persistence.Persistence;
-import jakarta.persistence.PersistenceException;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.Tuple;
 import repository.BaseEntityRepository;
 import repository.CreditCardRepository;
@@ -27,7 +26,7 @@ public class CreditCardServiceImpl implements CreditCardService {
     public Tuple findByCardNumber(String cardNumber) {
         try {
             return creditCardRepository.findByCardNumber(cardNumber);
-        } catch (PersistenceException e) {
+        } catch (NoResultException e) {
             throw new CreditCardExceptions.NotFoundException();
         }
     }
