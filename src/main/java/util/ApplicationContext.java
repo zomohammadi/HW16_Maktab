@@ -4,10 +4,7 @@ import entity.*;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
-import menu.LoanMenu;
-import menu.LoginMenu;
-import menu.MainMenu;
-import menu.StudentMenu;
+import menu.*;
 import repository.*;
 import repository.Impl.*;
 import service.*;
@@ -19,7 +16,7 @@ public class ApplicationContext {
     private EntityManagerFactory enf;
     private EntityManager em;
 
-
+    private final StudentService studentService;
     //menu
     private final MainMenu mainMenu;
 
@@ -38,12 +35,13 @@ public class ApplicationContext {
         BankRepository bankRepository = new BankRepositoryImpl(em);
         BaseEntityRepository<Account> accountBaseEntityRepository = new AccountRepositoryImp(em);
         BaseEntityRepository<CreditCard> creditCardBaseEntityRepository = new CreditCardRepositoryImp(em);
-        BaseEntityRepository<LoanCreditCard> loanCreditCardBaseEntityRepository = new LoanCreditCardRepositoryImp(em);
+        // BaseEntityRepository<LoanCreditCard> loanCreditCardBaseEntityRepository = new LoanCreditCardRepositoryImp(em);
         CreditCardRepository creditCardRepository = new CreditCardRepositoryImp(em);
         BaseEntityRepository<MortgageDetail> mortgageDetailBaseEntityRepository = new MortgageDetailRepositoryImp(em);
         BaseEntityRepository<Payment> paymentBaseEntityRepository = new PaymentRepositoryImp(em);
+        PaymentRepository paymentRepository = new PaymentRepositoryImp(em);
 
-        StudentService studentService = new StudentServiceImpl(studentBaseEntityRepository, studentRepository);
+        studentService = new StudentServiceImpl(studentBaseEntityRepository, studentRepository);
         UniversityService universityService = new UniversityServiceImpl(universityBaseEntityRepository, universityRepository);
         CityService cityService = new CityServiceImpl(cityBaseEntityRepository);
         TermService termService = new TermServiceImpl(termBaseEntityRepository);
@@ -52,14 +50,16 @@ public class ApplicationContext {
 
         AccountService accountService = new AccountServiceImpl(accountBaseEntityRepository);
         CreditCardService creditCardService = new CreditCardServiceImpl(creditCardBaseEntityRepository, creditCardRepository);
-        LoanCreditCardService loanCreditCardService = new LoanCreditCardServiceImpl(loanCreditCardBaseEntityRepository);
+        // LoanCreditCardService loanCreditCardService = new LoanCreditCardServiceImpl(loanCreditCardBaseEntityRepository);
         MortgageDetailService mortgageDetailService = new MortgageDetailServiceImpl(mortgageDetailBaseEntityRepository);
-        PaymentService paymentService = new PaymentServiceImpl(paymentBaseEntityRepository);
+        PaymentService paymentService = new PaymentServiceImpl(paymentBaseEntityRepository, paymentRepository);
         //menu
         LoginMenu loginMenu = new LoginMenu(studentService,
                 cityService, universityService);
-        LoanMenu loanMenu = new LoanMenu(termService, loanService, bankService, accountService, creditCardService, loanCreditCardService, studentService, mortgageDetailService, paymentService);
-        StudentMenu studentMenu = new StudentMenu(loanMenu);
+        LoanMenu loanMenu = new LoanMenu(termService, loanService, bankService,
+                accountService, creditCardService, /*loanCreditCardService,*/ studentService, mortgageDetailService, paymentService);
+        RepaymentMenu repaymentMenu=new RepaymentMenu(paymentService);
+        StudentMenu studentMenu = new StudentMenu(loanMenu, studentService, repaymentMenu);
         this.mainMenu = new MainMenu(loginMenu, loanMenu, studentMenu);
     }
 
@@ -87,8 +87,11 @@ public class ApplicationContext {
         return em;
     }
 
-    //menu
+    public StudentService getStudentService() {
+        return studentService;
+    }
 
+    //menu
     public MainMenu getMainMenu() {
         return mainMenu;
     }

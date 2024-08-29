@@ -1,7 +1,6 @@
 package repository.Impl;
 
 import entity.CreditCard;
-import entity.LoanCreditCard;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Tuple;
 import jakarta.persistence.TypedQuery;

@@ -20,18 +20,16 @@ public class LoanMenu {
     private final BankService bankService;
     private final AccountService accountService;
     private final CreditCardService creditCardService;
-    private final LoanCreditCardService loanCreditCardService;
     private final StudentService studentService;
     private final MortgageDetailService mortgageDetailService;
     private final PaymentService paymentService;
 
-    public LoanMenu(TermService termService, LoanService loanService, BankService bankService, AccountService accountService, CreditCardService creditCardService, LoanCreditCardService loanCreditCardService, StudentService studentService, MortgageDetailService mortgageDetailService, PaymentService paymentService) {
+    public LoanMenu(TermService termService, LoanService loanService, BankService bankService, AccountService accountService, CreditCardService creditCardService, StudentService studentService, MortgageDetailService mortgageDetailService, PaymentService paymentService) {
         this.termService = termService;
         this.loanService = loanService;
         this.bankService = bankService;
         this.accountService = accountService;
         this.creditCardService = creditCardService;
-        this.loanCreditCardService = loanCreditCardService;
         this.studentService = studentService;
         this.mortgageDetailService = mortgageDetailService;
         this.paymentService = paymentService;
@@ -62,50 +60,8 @@ public class LoanMenu {
                 switch (option) {
                     case 1 -> registerEducationLoan(token, currentDate, input, LoanType.Education);
                     case 2 -> registerTuitionLoan(token, currentDate, input);
-                    case 3 -> //registerMortgage(token,currentDate,input);
-                    {
-                        if (!token.isMarried()) {
-                            System.out.println("You are not permit to Register Mortgage");
-                        } else {
-                            if (token.isHaveDormitory()) {
-                                System.out.println("You are not permit to Register Mortgage! because you have Dormitory");
-                            }
-                        }
-                        Loan loan;
-                        Student student = null;
-                        try {
-                            loan = loanService.findStudentMortgage(token, token.getDegree(), LoanType.Mortgage);
-                            if (loan != null) {
-                                System.out.println("You are currently getting a mortgage at this point");
-                                return;
-                            }
-                        } catch (LoanExceptions.NotFoundException e) {
-                            try {
-                                student = studentService.findStudentByNationalCode(token.getPartnerCode());
-
-                                //refresh student to ensure this is up-to-date
-                                ApplicationContext.getInstance().getEntityManager().refresh(student);
-                            } catch (StudentExceptions.NotFoundException e3) {
-
-                                loanOperation(token, input, currentDate);
-
-                            }
-                            if (student != null) {
-                                try {
-                                    loan = loanService.findStudentMortgage(student, student.getDegree(), LoanType.Mortgage);
-                                    if (loan != null) {
-                                        System.out.println("""
-                                                Your partner received a mortgage while studying
-                                                Therefore, you are not allowed to get a mortgage.
-                                                         """);
-                                        return;
-                                    }
-                                } catch (LoanExceptions.NotFoundException e1) {
-                                    loanOperation(token, input, currentDate);
-
-                                }
-                            }
-                        }
+                    case 3 -> {
+                        if (registerMortgage(token, currentDate, input)) return;
                     }
                     case 4 -> continueRunning = false;
                     default -> System.out.println("Wrong option!");
@@ -116,6 +72,52 @@ public class LoanMenu {
                 }
             }
         }
+    }
+
+    private boolean registerMortgage(Student token, LocalDate currentDate, Scanner input) {
+        if (!token.isMarried()) {
+            System.out.println("You are not permit to Register Mortgage");
+        } else {
+            if (token.isHaveDormitory()) {
+                System.out.println("You are not permit to Register Mortgage! because you have Dormitory");
+            }
+        }
+        Loan loan;
+        Student student = null;
+        try {
+            loan = loanService.findStudentMortgage(token, token.getDegree(), LoanType.Mortgage);
+            if (loan != null) {
+                System.out.println("You are currently getting a mortgage at this point");
+                return true;
+            }
+        } catch (LoanExceptions.NotFoundException e) {
+            try {
+                student = studentService.findStudentByNationalCode(token.getPartnerCode());
+
+                //refresh student to ensure this is up-to-date
+                ApplicationContext.getInstance().getEntityManager().refresh(student);
+            } catch (StudentExceptions.NotFoundException e3) {
+
+                loanOperation(token, input, currentDate);
+
+            }
+            if (student != null) {
+                try {
+                    loan = loanService.findStudentMortgage(student, student.getDegree(), LoanType.Mortgage);
+                    if (loan != null) {
+                        System.out.println("""
+                                Your partner received a mortgage while studying
+                                Therefore, you are not allowed to get a mortgage.
+                                         """);
+                        return true;
+                    }
+                } catch (LoanExceptions.NotFoundException e1) {
+                    loanOperation(token, input, currentDate);
+
+                }
+            }
+        }
+        return false;
     }
 
     private void loanOperation(Student token, Scanner input, LocalDate currentDate) {
@@ -198,7 +200,7 @@ public class LoanMenu {
 
         loan = loanService.save(loan);
         if (account != null)
-            account.setBalance(amountOfLoan+account.getBalance());
+            account.setBalance(amountOfLoan + account.getBalance());
         accountService.update(account);
         MortgageDetail mortgageDetail = MortgageDetail.builder().loan(loan).address(address)
                 .contractNumber(contractNumber).build();
@@ -309,7 +311,7 @@ public class LoanMenu {
         loanService.save(loan);
         //update account
         if (account != null)
-            account.setBalance(amountOfLoan+account.getBalance());
+            account.setBalance(amountOfLoan + account.getBalance());
         accountService.update(account);
         //-------------------------------------------------------------------------
         //add new table with card loanAfterSave --> id_crd and id_loan loan_creditCard

@@ -2,22 +2,26 @@ package service.Impl;
 
 import entity.Loan;
 import entity.Payment;
-import enumaration.Degree;
+import entity.Student;
+import exceptions.PaymentExceptions;
+import jakarta.persistence.NoResultException;
+import jakarta.persistence.Tuple;
 import repository.BaseEntityRepository;
+import repository.PaymentRepository;
 import service.PaymentService;
+import util.ApplicationContext;
 
 import java.time.LocalDate;
-import java.time.Month;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class PaymentServiceImpl implements PaymentService {
     private final BaseEntityRepository<Payment> paymentBaseEntityRepository;
+    private final PaymentRepository paymentRepository;
 
-    public PaymentServiceImpl(BaseEntityRepository<Payment> paymentBaseEntityRepository) {
+    public PaymentServiceImpl(BaseEntityRepository<Payment> paymentBaseEntityRepository, PaymentRepository paymentRepository) {
         this.paymentBaseEntityRepository = paymentBaseEntityRepository;
+        this.paymentRepository = paymentRepository;
     }
 
     @Override
@@ -25,18 +29,20 @@ public class PaymentServiceImpl implements PaymentService {
 
         Double totalAmount = null;
         totalAmount = getTotalAmount(loan, totalAmount);
+        int numberOfPaymentYear = 5;
+        int numberOfMonth = numberOfPaymentYear * 12;
 
-        int numberOfInstallments = 372; // method baraye mohasebe in bayad beneisi
+        int numberOfInstallments = calculateNumberOfInstallments(numberOfPaymentYear);
         double amountPerInstallment = totalAmount / numberOfInstallments;
         //round 500/345
         amountPerInstallment = Math.round(amountPerInstallment * 1000.0) / 1000.0;
 
         // Assuming payments start from the current date and are monthly
-        LocalDate startDate = calculateStartDateOfLoanPayment(loan);
+        LocalDate startDate = ApplicationContext.getInstance().getStudentService().calculateGraduationDate(loan.getStudent());
 
         List<Payment> payments = new ArrayList<>();
-        for (int i = 1; i <= 60; i++) {  //in 60 bayad moteghayer bashe to in method
-            if ((i-1)!=0 && (i-1) % 12 == 0) {
+        for (int i = 1; i <= numberOfPaymentYear * numberOfMonth; i++) {
+            if ((i - 1) != 0 && (i - 1) % 12 == 0) {
                 amountPerInstallment *= 2;
             }
             Payment payment = Payment.builder()
@@ -52,22 +58,27 @@ public class PaymentServiceImpl implements PaymentService {
         loan.setPayments(payments);
     }
 
-    private LocalDate calculateStartDateOfLoanPayment(Loan loan) {
-        int entryYear = loan.getStudent().getEntryYear();
-        int endOfGraduation;
-        Degree degree = loan.getStudent().getDegree();
-        switch (degree) {
-            case Associate, DisContinuous_Bachelor,
-                    DisContinuousMaster -> endOfGraduation = entryYear + 3;
-            case Continuous_Bachelor -> endOfGraduation = entryYear + 5;
-            case IntegratedMaster -> endOfGraduation = entryYear + 6;
-            case ProfessionalDoctorate, IntegratedDoctorate, PhD -> endOfGraduation = entryYear + 7;
-            default -> endOfGraduation = entryYear;
+    private int calculateNumberOfInstallments(int numberOfPaymentYear) {
+        int numberOfInstallments = 0;
+        for (int i = 0; i < numberOfPaymentYear; i++) {
+            numberOfInstallments += Math.pow(2, i) * 12;
         }
-        return LocalDate.of(endOfGraduation, Month.JUNE, 22);
+        return numberOfInstallments;
     }
 
-    private static Double getTotalAmount(Loan loan, Double totalAmount) {
+    @Override
+    public List<Tuple> showPaidInstallments(Student student) {
+            return paymentRepository.showPaidInstallments(student);
+
+    }
+
+    @Override
+    public List<Tuple> showUnPaidInstallments(Student student) {
+            return paymentRepository.showUnPaidInstallments(student);
+
+    }
+
+    private Double getTotalAmount(Loan loan, Double totalAmount) {
         Double amount = loan.getAmount();
         if (amount != null) {
             // Calculate 4% of the amount

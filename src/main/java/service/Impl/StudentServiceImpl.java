@@ -1,12 +1,16 @@
 package service.Impl;
 
 import entity.Student;
+import enumaration.Degree;
 import exceptions.StudentExceptions;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceException;
 import repository.BaseEntityRepository;
 import repository.StudentRepository;
 import service.StudentService;
+
+import java.time.LocalDate;
+import java.time.Month;
 
 public class StudentServiceImpl implements StudentService {
 
@@ -29,7 +33,7 @@ public class StudentServiceImpl implements StudentService {
 
             student = studentBaseEntityRepository.save(student);
 
-        }catch (PersistenceException e) {
+        } catch (PersistenceException e) {
             throw new StudentExceptions.DatabaseAccessException("Database access error occurred while saving in", e);
         } catch (NullPointerException e) {
             throw new StudentExceptions.StudentNullPointerException("A required object was null", e);
@@ -82,4 +86,45 @@ public class StudentServiceImpl implements StudentService {
             throw new StudentExceptions.DatabaseAccessException(e.getMessage());
         }
     }
+
+    @Override
+    public LocalDate calculateGraduationDate(Student student) {
+        int entryYear = student.getEntryYear();
+        int endOfGraduation;
+        Degree degree = student.getDegree();
+        switch (degree) {
+            case Associate, DisContinuous_Bachelor,
+                    DisContinuousMaster -> endOfGraduation = entryYear + 3;
+            case Continuous_Bachelor -> endOfGraduation = entryYear + 5;
+            case IntegratedMaster -> endOfGraduation = entryYear + 6;
+            case ProfessionalDoctorate, IntegratedDoctorate, PhD -> endOfGraduation = entryYear + 7;
+            default -> endOfGraduation = entryYear;
+        }
+        return LocalDate.of(endOfGraduation, Month.JUNE, 22);
+    }
+
+    public boolean checkStudentIsGraduation(LocalDate currentDate, LocalDate graduationDate) {
+        boolean conditions = true;
+        if (currentDate.getYear() < graduationDate.getYear()) {
+            conditions = false;
+        } else if (currentDate.getYear() == graduationDate.getYear()) {
+            if (currentDate.getMonthValue() < graduationDate.getMonthValue()) {
+                conditions = false;
+            } else if (currentDate.getMonthValue() == graduationDate.getMonthValue()) {
+                if (currentDate.getDayOfMonth() < graduationDate.getDayOfMonth()) System.out.println();
+                conditions = false;
+            } else {
+                System.out.print("");
+            }
+        }
+        return conditions;
+    }
 }
+   /*  if (currentDate.getYear() > graduationDate.getYear()) {
+            conditions = true;
+        } else if (currentDate.getYear() == graduationDate.getYear()) {
+            if (currentDate.getMonthValue() == graduationDate.getMonthValue()) {
+                if (currentDate.getDayOfMonth() >= graduationDate.getDayOfMonth()) System.out.println();
+                conditions = true;
+            }
+        }*/
