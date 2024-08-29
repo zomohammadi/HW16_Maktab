@@ -23,8 +23,9 @@ public class LoanMenu {
     private final LoanCreditCardService loanCreditCardService;
     private final StudentService studentService;
     private final MortgageDetailService mortgageDetailService;
+    private final PaymentService paymentService;
 
-    public LoanMenu(TermService termService, LoanService loanService, BankService bankService, AccountService accountService, CreditCardService creditCardService, LoanCreditCardService loanCreditCardService, StudentService studentService, MortgageDetailService mortgageDetailService) {
+    public LoanMenu(TermService termService, LoanService loanService, BankService bankService, AccountService accountService, CreditCardService creditCardService, LoanCreditCardService loanCreditCardService, StudentService studentService, MortgageDetailService mortgageDetailService, PaymentService paymentService) {
         this.termService = termService;
         this.loanService = loanService;
         this.bankService = bankService;
@@ -33,6 +34,7 @@ public class LoanMenu {
         this.loanCreditCardService = loanCreditCardService;
         this.studentService = studentService;
         this.mortgageDetailService = mortgageDetailService;
+        this.paymentService = paymentService;
     }
 
 
@@ -85,9 +87,7 @@ public class LoanMenu {
                                 ApplicationContext.getInstance().getEntityManager().refresh(student);
                             } catch (StudentExceptions.NotFoundException e3) {
 
-                                System.out.println("0000000000000");
                                 loanOperation(token, input, currentDate);
-                                System.out.println("0000000000000");
 
                             }
                             if (student != null) {
@@ -140,14 +140,14 @@ public class LoanMenu {
         String cvv2 = null;
         LocalDate expirationDate = null;
         CreditCard creditCard = null;
-        Account account;
+        Account account = null;
         do {
             conditions = false;
             cardNumber = enterCardNumber(input);
             try {
                 Tuple result = creditCardService.findByCardNumber(cardNumber);
                 creditCard = result.get("creditCard", CreditCard.class);
-                // account = result.get("account", Account.class);
+                account = result.get("account", Account.class);
             } catch (CreditCardExceptions.NotFoundException e6) {
                 cvv2 = enterCvv2(input);
                 boolean expireDateCondition = true;
@@ -190,16 +190,22 @@ public class LoanMenu {
 
         loan = Loan.builder().loanType(LoanType.Mortgage).student(token)
                 .amount(amountOfLoan).degree(token.getDegree()).build();
-        loan = loanService.save(loan);
-        MortgageDetail mortgageDetail = MortgageDetail.builder().loan(loan).address(address)
-                .contractNumber(contractNumber).build();
         LoanCreditCard loanCreditCard = LoanCreditCard.builder()
                 .creditCard(creditCard).loan(loan).build();
-        mortgageDetailService.save(mortgageDetail);
-        loanCreditCardService.save(loanCreditCard);
+        loan.setLoanCreditCard(loanCreditCard);
+        //create payment
+        paymentService.createPaymentsForLoan(loan);
 
-        //create payment table of this loan
-        ///TO//DO
+        loan = loanService.save(loan);
+        if (account != null)
+            account.setBalance(amountOfLoan+account.getBalance());
+        accountService.update(account);
+        MortgageDetail mortgageDetail = MortgageDetail.builder().loan(loan).address(address)
+                .contractNumber(contractNumber).build();
+
+        mortgageDetailService.save(mortgageDetail);
+        // loanCreditCardService.save(loanCreditCard);
+
         System.out.println("The operation was successful.");
     }
 
@@ -226,18 +232,15 @@ public class LoanMenu {
         String cardNumber;
         String cvv2 = null;
         LocalDate expirationDate = null;
-        CreditCard creditCard = null;
         Account account = null;
+        CreditCard creditCard = null;
         do {
-
             conditions = false;
-
             cardNumber = enterCardNumber(input);
-
             try {
                 Tuple result = creditCardService.findByCardNumber(cardNumber);
                 creditCard = result.get("creditCard", CreditCard.class);
-                //  account = result.get("account", Account.class);
+                account = result.get("account", Account.class);
             } catch (CreditCardExceptions.NotFoundException e6) {
                 cvv2 = enterCvv2(input);
                 boolean expireDateCondition = true;
@@ -294,17 +297,23 @@ public class LoanMenu {
 
         Loan loan = Loan.builder().loanType(loanType).student(token).amount(amountOfLoan)
                 .degree(degree).term(termAfterSaveInDB).build();
-        Loan loanAfterSave = loanService.save(loan);
+
+        LoanCreditCard loanCreditCard = LoanCreditCard.builder()
+                .loan(loan).creditCard(creditCard).build();
+        loan.setLoanCreditCard(loanCreditCard);
+
+        //create payment
+        paymentService.createPaymentsForLoan(loan);
+
+        /*Loan loanAfterSave =*/
+        loanService.save(loan);
         //update account
         if (account != null)
-            account.setBalance(amountOfLoan);
-        accountService.save(account);
+            account.setBalance(amountOfLoan+account.getBalance());
+        accountService.update(account);
         //-------------------------------------------------------------------------
         //add new table with card loanAfterSave --> id_crd and id_loan loan_creditCard
-        loanCreditCardService.save(LoanCreditCard.builder().loan(loanAfterSave).creditCard(creditCard).build());
-        //-------------------------------------------------------------------------
-        //create payment table of this loan
-        ///TO//DO
+        // loanCreditCardService.save(loanCreditCard);
 
         System.out.println("The operation was successful.");
     }

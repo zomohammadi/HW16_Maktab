@@ -7,7 +7,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 
-import java.util.Set;
+import java.util.List;
 
 @SuperBuilder
 @Entity
@@ -41,4 +41,9 @@ public class Loan extends BaseEntity {
     @Enumerated(EnumType.STRING)
     Degree degree;
 
+    @OneToMany(mappedBy = "loan", cascade = CascadeType.PERSIST)
+    List<Payment> payments;
+
+    @OneToOne(mappedBy = "loan", cascade = CascadeType.PERSIST)
+    private LoanCreditCard loanCreditCard;
 }

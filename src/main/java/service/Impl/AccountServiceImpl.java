@@ -12,7 +12,6 @@ public class AccountServiceImpl implements AccountService {
 
     public AccountServiceImpl(BaseEntityRepository<Account> accountBaseEntityRepository) {
         this.accountBaseEntityRepository = accountBaseEntityRepository;
-       // this.accountRepository = accountRepository;
         this.accountNumber = new Random().nextInt(100, 1000);
     }
 

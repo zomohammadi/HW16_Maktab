@@ -12,8 +12,8 @@ public class LoanCreditCardServiceImpl implements LoanCreditCardService {
     }
 
 
-    @Override
+  /*  @Override
     public LoanCreditCard save(LoanCreditCard loanCreditCard) {
         return loanCreditCardBaseEntityRepository.save(loanCreditCard);
-    }
+    }*/
 }
