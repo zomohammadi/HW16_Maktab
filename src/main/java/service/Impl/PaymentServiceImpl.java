@@ -3,10 +3,7 @@ package service.Impl;
 import entity.Loan;
 import entity.Payment;
 import entity.Student;
-import exceptions.PaymentExceptions;
-import jakarta.persistence.NoResultException;
 import jakarta.persistence.Tuple;
-import repository.BaseEntityRepository;
 import repository.PaymentRepository;
 import service.PaymentService;
 import util.ApplicationContext;
@@ -16,11 +13,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PaymentServiceImpl implements PaymentService {
-    private final BaseEntityRepository<Payment> paymentBaseEntityRepository;
     private final PaymentRepository paymentRepository;
 
-    public PaymentServiceImpl(BaseEntityRepository<Payment> paymentBaseEntityRepository, PaymentRepository paymentRepository) {
-        this.paymentBaseEntityRepository = paymentBaseEntityRepository;
+    public PaymentServiceImpl(PaymentRepository paymentRepository) {
         this.paymentRepository = paymentRepository;
     }
 
@@ -34,14 +29,14 @@ public class PaymentServiceImpl implements PaymentService {
 
         int numberOfInstallments = calculateNumberOfInstallments(numberOfPaymentYear);
         double amountPerInstallment = totalAmount / numberOfInstallments;
-        //round 500/345
+        //round 500.3458788 to 500.346
         amountPerInstallment = Math.round(amountPerInstallment * 1000.0) / 1000.0;
 
         // Assuming payments start from the current date and are monthly
         LocalDate startDate = ApplicationContext.getInstance().getStudentService().calculateGraduationDate(loan.getStudent());
 
         List<Payment> payments = new ArrayList<>();
-        for (int i = 1; i <= numberOfPaymentYear * numberOfMonth; i++) {
+        for (int i = 1; i <= numberOfMonth; i++) {
             if ((i - 1) != 0 && (i - 1) % 12 == 0) {
                 amountPerInstallment *= 2;
             }
@@ -68,13 +63,13 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public List<Tuple> showPaidInstallments(Student student) {
-            return paymentRepository.showPaidInstallments(student);
+        return paymentRepository.showPaidInstallments(student);
 
     }
 
     @Override
     public List<Tuple> showUnPaidInstallments(Student student) {
-            return paymentRepository.showUnPaidInstallments(student);
+        return paymentRepository.showUnPaidInstallments(student);
 
     }
 

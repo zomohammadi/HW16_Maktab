@@ -35,10 +35,8 @@ public class ApplicationContext {
         BankRepository bankRepository = new BankRepositoryImpl(em);
         BaseEntityRepository<Account> accountBaseEntityRepository = new AccountRepositoryImp(em);
         BaseEntityRepository<CreditCard> creditCardBaseEntityRepository = new CreditCardRepositoryImp(em);
-        // BaseEntityRepository<LoanCreditCard> loanCreditCardBaseEntityRepository = new LoanCreditCardRepositoryImp(em);
         CreditCardRepository creditCardRepository = new CreditCardRepositoryImp(em);
         BaseEntityRepository<MortgageDetail> mortgageDetailBaseEntityRepository = new MortgageDetailRepositoryImp(em);
-        BaseEntityRepository<Payment> paymentBaseEntityRepository = new PaymentRepositoryImp(em);
         PaymentRepository paymentRepository = new PaymentRepositoryImp(em);
 
         studentService = new StudentServiceImpl(studentBaseEntityRepository, studentRepository);
@@ -50,9 +48,8 @@ public class ApplicationContext {
 
         AccountService accountService = new AccountServiceImpl(accountBaseEntityRepository);
         CreditCardService creditCardService = new CreditCardServiceImpl(creditCardBaseEntityRepository, creditCardRepository);
-        // LoanCreditCardService loanCreditCardService = new LoanCreditCardServiceImpl(loanCreditCardBaseEntityRepository);
         MortgageDetailService mortgageDetailService = new MortgageDetailServiceImpl(mortgageDetailBaseEntityRepository);
-        PaymentService paymentService = new PaymentServiceImpl(paymentBaseEntityRepository, paymentRepository);
+        PaymentService paymentService = new PaymentServiceImpl( paymentRepository);
         //menu
         LoginMenu loginMenu = new LoginMenu(studentService,
                 cityService, universityService);

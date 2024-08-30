@@ -147,7 +147,7 @@ public class LoanMenu {
             conditions = false;
             cardNumber = enterCardNumber(input);
             try {
-                Tuple result = creditCardService.findByCardNumber(cardNumber);
+                Tuple result = creditCardService.findByCardNumber(cardNumber,token.getId());
                 creditCard = result.get("creditCard", CreditCard.class);
                 account = result.get("account", Account.class);
             } catch (CreditCardExceptions.NotFoundException e6) {
@@ -240,7 +240,7 @@ public class LoanMenu {
             conditions = false;
             cardNumber = enterCardNumber(input);
             try {
-                Tuple result = creditCardService.findByCardNumber(cardNumber);
+                Tuple result = creditCardService.findByCardNumber(cardNumber,token.getId());
                 creditCard = result.get("creditCard", CreditCard.class);
                 account = result.get("account", Account.class);
             } catch (CreditCardExceptions.NotFoundException e6) {

@@ -10,7 +10,6 @@ import java.util.Scanner;
 import static util.Utility.getDate;
 
 public class StudentMenu {
-    // private Student token = null;
     private final LoanMenu loanMenu;
     private final StudentService studentService;
     private final RepaymentMenu repaymentMenu;
