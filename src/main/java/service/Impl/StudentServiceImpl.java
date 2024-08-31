@@ -111,8 +111,9 @@ public class StudentServiceImpl implements StudentService {
             if (currentDate.getMonthValue() < graduationDate.getMonthValue()) {
                 conditions = false;
             } else if (currentDate.getMonthValue() == graduationDate.getMonthValue()) {
-                if (currentDate.getDayOfMonth() < graduationDate.getDayOfMonth()) System.out.println();
-                conditions = false;
+                if (currentDate.getDayOfMonth() < graduationDate.getDayOfMonth()) {
+                    conditions = false;
+                }
             } else {
                 System.out.print("");
             }

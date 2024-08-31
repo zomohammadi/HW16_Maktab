@@ -49,7 +49,7 @@ public class StudentMenu {
                     case 2 -> {
                         if (studentService.checkStudentIsGraduation(currentDate,
                                 studentService.calculateGraduationDate(token))) {
-                            repaymentMenu.showRepaymentMenu(token);
+                            repaymentMenu.showRepaymentMenu(token,currentDate);
                         } else {
                             System.out.println("Loan repayment has not been activated for you!");
                         }

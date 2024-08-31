@@ -10,7 +10,6 @@ import repository.PaymentRepository;
 import service.PaymentService;
 import util.ApplicationContext;
 
-import java.text.ParseException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +35,8 @@ public class PaymentServiceImpl implements PaymentService {
         amountPerInstallment = Math.round(amountPerInstallment * 1000.0) / 1000.0;
 
         // Assuming payments start from the current date and are monthly
-        LocalDate startDate = ApplicationContext.getInstance().getStudentService().calculateGraduationDate(loan.getStudent());
+        LocalDate startDate = ApplicationContext.getInstance()
+                .getStudentService().calculateGraduationDate(loan.getStudent());
 
         List<Payment> payments = new ArrayList<>();
         for (int i = 1; i <= numberOfMonth; i++) {
@@ -82,6 +82,15 @@ public class PaymentServiceImpl implements PaymentService {
             return paymentRepository.listOfLoanThatMustBePayed(id);
         } catch (NoResultException e) {
             throw new PaymentExceptions.NotFoundException(e.getMessage());
+        }
+    }
+
+    @Override
+    public int update(Long paymentId, Long studentId, String cardNumber, String cvv2, LocalDate expirationDate) {
+        try {
+            return paymentRepository.update(paymentId, studentId, cardNumber, cvv2, expirationDate);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 

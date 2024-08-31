@@ -317,50 +317,6 @@ public class LoanMenu {
         System.out.println("The operation was successful.");
     }
 
-    private LocalDate enterExpirationDate(Scanner input) {
-        LocalDate expirationDate = null;
-        System.out.print("expiration date:  ");
-        System.out.print("Enter the Year of expiration date:  ");
-        String yearOfExpirationDate = input.nextLine();
-        if (fillInputNumbersWithMinAndMaxDate(yearOfExpirationDate, 2019, 2028)) {
-            System.out.print("Enter the Month Of expiration date: ");
-            String monthExpirationDate = input.nextLine();
-            if (fillInputNumbersWithMinAndMaxDate(monthExpirationDate, 1, 12)) {
-                System.out.print("Enter the Day Of expiration date: ");
-                String dayOfExpirationDate = input.nextLine();
-                switch (Integer.parseInt(monthExpirationDate)) {
-                    case 1, 3, 5, 6, 7, 8, 10, 12 -> fillInputNumbersWithMinAndMaxDate(dayOfExpirationDate,
-                            1, 31);
-                    case 4, 9, 11 -> fillInputNumbersWithMinAndMaxDate(dayOfExpirationDate,
-                            1, 30);
-                    default -> fillInputNumbersWithMinAndMaxDate(dayOfExpirationDate,
-                            1, 29);
-                }
-                expirationDate = LocalDate.of(Integer.parseInt(yearOfExpirationDate),
-                        Integer.parseInt(monthExpirationDate), Integer.parseInt(dayOfExpirationDate));
-
-            }
-        }
-        return expirationDate;
-    }
-
-    private boolean checkCardIsExpired(LocalDate currentDate, boolean conditions, LocalDate expirationDate) {
-        if (currentDate.getYear() < expirationDate.getYear()) {
-            System.out.print("");
-        } else if (currentDate.getYear() == expirationDate.getYear()) {
-            if (currentDate.getMonthValue() < expirationDate.getDayOfMonth()) {
-                System.out.print("");
-            } else if (currentDate.getMonthValue() == expirationDate.getDayOfMonth()) {
-                if (currentDate.getDayOfMonth() <= expirationDate.getDayOfMonth()) System.out.println();
-                System.out.print("");
-            }
-        } else {
-            System.out.println("your card is expired! Please Enter an unexpired card");
-            conditions = true;
-        }
-        return conditions;
-    }
-
     private Double getAmountOfLoan(Degree degree, LoanType loanType) {
         double amountOfLoan;
         switch (loanType) {
@@ -406,6 +362,50 @@ public class LoanMenu {
         return amountOfLoan;
     }
 
+    private LocalDate enterExpirationDate(Scanner input) {
+        LocalDate expirationDate = null;
+        System.out.print("expiration date:  ");
+        System.out.print("Enter the Year of expiration date:  ");
+        String yearOfExpirationDate = input.nextLine();
+        if (fillInputNumbersWithMinAndMaxDate(yearOfExpirationDate, 2019, 2028)) {
+            System.out.print("Enter the Month Of expiration date: ");
+            String monthExpirationDate = input.nextLine();
+            if (fillInputNumbersWithMinAndMaxDate(monthExpirationDate, 1, 12)) {
+                System.out.print("Enter the Day Of expiration date: ");
+                String dayOfExpirationDate = input.nextLine();
+                switch (Integer.parseInt(monthExpirationDate)) {
+                    case 1, 3, 5, 6, 7, 8, 10, 12 -> fillInputNumbersWithMinAndMaxDate(dayOfExpirationDate,
+                            1, 31);
+                    case 4, 9, 11 -> fillInputNumbersWithMinAndMaxDate(dayOfExpirationDate,
+                            1, 30);
+                    default -> fillInputNumbersWithMinAndMaxDate(dayOfExpirationDate,
+                            1, 29);
+                }
+                expirationDate = LocalDate.of(Integer.parseInt(yearOfExpirationDate),
+                        Integer.parseInt(monthExpirationDate), Integer.parseInt(dayOfExpirationDate));
+
+            }
+        }
+        return expirationDate;
+    }
+
+    private boolean checkCardIsExpired(LocalDate currentDate, boolean conditions, LocalDate expirationDate) {
+        if (currentDate.getYear() < expirationDate.getYear()) {
+            System.out.print("");
+        } else if (currentDate.getYear() == expirationDate.getYear()) {
+            if (currentDate.getMonthValue() < expirationDate.getMonthValue()) {
+                System.out.print("");
+            } else if (currentDate.getMonthValue() == expirationDate.getMonthValue()) {
+                if (currentDate.getDayOfMonth() <= expirationDate.getDayOfMonth()) System.out.println();
+                System.out.print("");
+            }
+        } else {
+            System.out.println("your card is expired! Please Enter an unexpired card");
+            conditions = true;
+        }
+        return conditions;
+    }
+
     private String enterBankName(Scanner input) {
         boolean conditions;
         String bankName = "";
@@ -447,28 +447,7 @@ public class LoanMenu {
         return bankName;
     }
 
-    /*
-     do {
-                do {
-                    System.out.print("""
-                            enter the Bank name :
-                            Meli
-                            Refah
-                            Tejarat
-                            Maskan
-                            """);
-                    bankName = input.nextLine();
-                } while (!fillInputString(bankName));
 
-                if (bankName.equals("Meli") || bankName.equals("Refah") || bankName.equals("Tejarat")
-                    || bankName.equals("Maskan")) {
-                    System.out.println("Enter the bank name of list!");
-                    conditions = false;
-                }
-
-
-            } while (conditions);
-     */
     private String enterCvv2(Scanner input) {
         String cvv2;
         do {
