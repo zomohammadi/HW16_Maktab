@@ -1,6 +1,7 @@
 package menu;
 
 import entity.Student;
+import exceptions.PaymentExceptions;
 import jakarta.persistence.Tuple;
 import service.PaymentService;
 
@@ -41,7 +42,14 @@ public class RepaymentMenu {
 
                     case 2 -> unpaidInstallments(token);
 
-//                    case 3 ->;
+                    case 3 -> {
+                        try {
+                            List<Tuple> result = paymentService.listOfLoanThatMustBePayed(token.getId());
+                            result.forEach(System.out::println);
+                        } catch (PaymentExceptions.NotFoundException e) {
+                            System.out.println("You have no installments to pay" + e.getMessage());
+                        }
+                    }
                     case 4 -> continueRunning = false;
                     default -> System.out.println("Wrong option!");
                 }

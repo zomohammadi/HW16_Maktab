@@ -14,7 +14,8 @@ public class CreditCardServiceImpl implements CreditCardService {
     private final BaseEntityRepository<CreditCard> creditCardBaseEntityRepository;
     private final CreditCardRepository creditCardRepository;
 
-    public CreditCardServiceImpl(BaseEntityRepository<CreditCard> creditCardBaseEntityRepository, CreditCardRepository creditCardRepository) {
+    public CreditCardServiceImpl(BaseEntityRepository<CreditCard> creditCardBaseEntityRepository
+            , CreditCardRepository creditCardRepository) {
         this.creditCardBaseEntityRepository = creditCardBaseEntityRepository;
         this.creditCardRepository = creditCardRepository;
     }
@@ -25,12 +26,13 @@ public class CreditCardServiceImpl implements CreditCardService {
     }
 
     @Override
-    public Tuple findByCardNumber(String cardNumber,Long id) {
+    public Tuple findByCardNumber(String cardNumber, Long id) {
         try {
-            return creditCardRepository.findByCardNumber(cardNumber,id);
+            return creditCardRepository.findByCardNumber(cardNumber, id);
         } catch (NoResultException e) {
             throw new CreditCardExceptions.NotFoundException();
         }
     }
+
 
 }

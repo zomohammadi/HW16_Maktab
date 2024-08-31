@@ -3,11 +3,14 @@ package service.Impl;
 import entity.Loan;
 import entity.Payment;
 import entity.Student;
+import exceptions.PaymentExceptions;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.Tuple;
 import repository.PaymentRepository;
 import service.PaymentService;
 import util.ApplicationContext;
 
+import java.text.ParseException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -71,6 +74,15 @@ public class PaymentServiceImpl implements PaymentService {
     public List<Tuple> showUnPaidInstallments(Student student) {
         return paymentRepository.showUnPaidInstallments(student);
 
+    }
+
+    @Override
+    public List<Tuple> listOfLoanThatMustBePayed(Long id) {
+        try {
+            return paymentRepository.listOfLoanThatMustBePayed(id);
+        } catch (NoResultException e) {
+            throw new PaymentExceptions.NotFoundException(e.getMessage());
+        }
     }
 
     private Double getTotalAmount(Loan loan, Double totalAmount) {

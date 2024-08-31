@@ -147,7 +147,7 @@ public class LoanMenu {
             conditions = false;
             cardNumber = enterCardNumber(input);
             try {
-                Tuple result = creditCardService.findByCardNumber(cardNumber,token.getId());
+                Tuple result = creditCardService.findByCardNumber(cardNumber, token.getId());
                 creditCard = result.get("creditCard", CreditCard.class);
                 account = result.get("account", Account.class);
             } catch (CreditCardExceptions.NotFoundException e6) {
@@ -240,7 +240,7 @@ public class LoanMenu {
             conditions = false;
             cardNumber = enterCardNumber(input);
             try {
-                Tuple result = creditCardService.findByCardNumber(cardNumber,token.getId());
+                Tuple result = creditCardService.findByCardNumber(cardNumber, token.getId());
                 creditCard = result.get("creditCard", CreditCard.class);
                 account = result.get("account", Account.class);
             } catch (CreditCardExceptions.NotFoundException e6) {
@@ -270,7 +270,7 @@ public class LoanMenu {
             Bank bank = bankService.findByName(bankName);
             //------------------------------------------------------------------------------
             //get account number and create Account Object and save in DB
-            account = Account.builder().student(token).bank(bank).build();
+            account = Account.builder().student(token).bank(bank).balance(0.0).build();
 
             //--------------create object credit card and save in DB:
             creditCard = CreditCard.builder().account(account).cardNumber(cardNumber)
@@ -310,13 +310,10 @@ public class LoanMenu {
         /*Loan loanAfterSave =*/
         loanService.save(loan);
         //update account
-        if (account != null)
+        if (account != null) {
             account.setBalance(amountOfLoan + account.getBalance());
-        accountService.update(account);
-        //-------------------------------------------------------------------------
-        //add new table with card loanAfterSave --> id_crd and id_loan loan_creditCard
-        // loanCreditCardService.save(loanCreditCard);
-
+            accountService.update(account);
+        }
         System.out.println("The operation was successful.");
     }
 

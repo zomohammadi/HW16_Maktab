@@ -10,4 +10,5 @@ public interface PaymentService {
     void createPaymentsForLoan(Loan loan);
     List<jakarta.persistence.Tuple> showPaidInstallments(Student student);
     List<Tuple> showUnPaidInstallments(Student student);
+    List<Tuple> listOfLoanThatMustBePayed(Long id);
 }
