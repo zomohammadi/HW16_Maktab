@@ -46,16 +46,6 @@ public class PaymentRepositoryImp extends BaseEntityRepositoryImpl<Payment> impl
         return query.getResultList();
     }
 
-    /*
-    select p.id, p.amount_per_installment, p.installment_number, l.loan_type, l.create_date, p.prepayment_date
-from payment p
-         join loan l on l.id = p.loan_id
-where p.is_payed = false
-  and (p.loan_id, p.prepayment_date) in (select g.loan_id, min(g.prepayment_date)
-                                    from payment g
-                                    where g.is_payed = false
-                                    group by g.loan_id);
-     */
     @Override
     public List<Tuple> listOfLoanThatMustBePayed(Long id) {
         TypedQuery<Tuple> query = getEntityManager().createQuery("""
