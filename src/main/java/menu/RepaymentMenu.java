@@ -16,7 +16,7 @@ public class RepaymentMenu {
         this.paymentService = paymentService;
     }
 
-    public void showRepaymentMenu(Student token, LocalDate currentDate) {
+    public void showRepaymentMenu(Student token) {
         Scanner input = new Scanner(System.in);
         boolean continueRunning = true;
         while (continueRunning) {
@@ -31,7 +31,7 @@ public class RepaymentMenu {
             String stringOption = input.nextLine();
             if (stringOption == null || stringOption.isEmpty()) {
                 System.out.println("Input can not be null or empty");
-                showRepaymentMenu(token, currentDate);
+                showRepaymentMenu(token);
                 break;
             }
             try {
@@ -84,10 +84,7 @@ public class RepaymentMenu {
 
                             if (expirationDate != null) expireDateCondition = false;
                         } while (expireDateCondition);
-/*
-                        if (checkCardIsExpired(currentDate, expirationDate)) {
-                            return;
-                        }*/
+
                         int updateResult = 0;
                         try {
 

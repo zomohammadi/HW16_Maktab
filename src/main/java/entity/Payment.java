@@ -5,7 +5,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 
-import java.time.LocalDate;
+import java.time.ZonedDateTime;
 
 @SuperBuilder
 @Entity
@@ -32,7 +32,7 @@ public class Payment extends BaseEntity {
     Double amountPerInstallment;
 
     @Column(name = PREPAYMENT_DATE)
-    LocalDate prepaymentDate;
+    ZonedDateTime prepaymentDate;
 
     @Column(name = IS_PAYED)
     boolean isPayed;

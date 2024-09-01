@@ -12,6 +12,7 @@ import service.PaymentService;
 import util.ApplicationContext;
 
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,7 +39,7 @@ public class PaymentServiceImpl implements PaymentService {
         amountPerInstallment = Math.round(amountPerInstallment * 1000.0) / 1000.0;
 
         // Assuming payments start from the current date and are monthly
-        LocalDate startDate = ApplicationContext.getInstance()
+        ZonedDateTime startDate = ApplicationContext.getInstance()
                 .getStudentService().calculateGraduationDate(loan.getStudent());
 
         List<Payment> payments = new ArrayList<>();

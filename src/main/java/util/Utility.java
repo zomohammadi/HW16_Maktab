@@ -5,9 +5,10 @@ import org.passay.CharacterRule;
 import org.passay.EnglishCharacterData;
 import org.passay.PasswordGenerator;
 
-import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.function.Function;
 import java.util.function.Supplier;
+
 
 public class Utility {
     public static String generateSecurePassword() {
@@ -41,8 +42,28 @@ public class Utility {
 
         return passGen.generatePassword(8, SR, LCR, UCR, DR);
     }
-    public static LocalDate getDate(Function<LocalDate, LocalDate> dateProvider) {
-        Supplier<LocalDate> defaultDateSupplier = LocalDate::now;
+
+    public static ZonedDateTime getDate(Function<ZonedDateTime, ZonedDateTime> dateProvider) {
+        Supplier<ZonedDateTime> defaultDateSupplier = ZonedDateTime::now;
         return dateProvider.apply(null) == null ? defaultDateSupplier.get() : dateProvider.apply(null);
+    }
+
+    public static class UseDate {
+        public static ZonedDateTime useDate() {
+            /* ZonedDateTime currentDate = getDate(date -> null);*/
+
+             ZonedDateTime currentDate = getDate(date -> ZonedDateTime.of(2018, 10, 23 , ZonedDateTime.now().getHour(), ZonedDateTime.now().getMinute(),
+                                ZonedDateTime.now().getSecond(), 0, ZonedDateTime.now().getZone()));
+
+           /* ZonedDateTime currentDate = getDate(date -> ZonedDateTime.of(2019, 2, 14 , ZonedDateTime.now().getHour(), ZonedDateTime.now().getMinute(),
+                              ZonedDateTime.now().getSecond(), 0, ZonedDateTime.now().getZone()));
+            */
+
+           /* ZonedDateTime currentDate = getDate(date -> ZonedDateTime.of(2021, 10, 23
+                    , ZonedDateTime.now().getHour(), ZonedDateTime.now().getMinute(),
+                    ZonedDateTime.now().getSecond(), 0, ZonedDateTime.now().getZone()));*/
+
+            return currentDate;
+        }
     }
 }

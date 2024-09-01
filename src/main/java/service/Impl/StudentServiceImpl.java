@@ -9,8 +9,7 @@ import repository.BaseEntityRepository;
 import repository.StudentRepository;
 import service.StudentService;
 
-import java.time.LocalDate;
-import java.time.Month;
+import java.time.ZonedDateTime;
 
 public class StudentServiceImpl implements StudentService {
 
@@ -88,7 +87,7 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public LocalDate calculateGraduationDate(Student student) {
+    public ZonedDateTime calculateGraduationDate(Student student) {
         int entryYear = student.getEntryYear();
         int endOfGraduation;
         Degree degree = student.getDegree();
@@ -100,10 +99,11 @@ public class StudentServiceImpl implements StudentService {
             case ProfessionalDoctorate, IntegratedDoctorate, PhD -> endOfGraduation = entryYear + 7;
             default -> endOfGraduation = entryYear;
         }
-        return LocalDate.of(endOfGraduation, Month.JUNE, 22);
+        return ZonedDateTime.of(endOfGraduation, 6, 22
+                ,0,0,0,0,ZonedDateTime.now().getZone());
     }
 
-    public boolean checkStudentIsGraduation(LocalDate currentDate, LocalDate graduationDate) {
+    public boolean checkStudentIsGraduation(ZonedDateTime currentDate, ZonedDateTime graduationDate) {
         boolean conditions = true;
         if (currentDate.getYear() < graduationDate.getYear()) {
             conditions = false;

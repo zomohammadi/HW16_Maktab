@@ -26,8 +26,8 @@ public class Account extends BaseEntity {
     Student student;
 
     @Column(name = BALANCE)
-    Double balance;
+    double balance;
 
-    @Column(name = ACCOUNT_NUMBER,unique = true)
+    @Column(name = ACCOUNT_NUMBER, unique = true)
     int accountNumber;
 }

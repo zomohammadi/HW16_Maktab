@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import util.Utility;
 
 import java.io.Serializable;
 import java.time.ZonedDateTime;
@@ -38,13 +39,14 @@ public class BaseEntity implements Serializable {
 
     @PrePersist
     public void perPersist() {
-        setCreateDate(ZonedDateTime.now());
-        setLastUpdateDate(ZonedDateTime.now());
+        setCreateDate(Utility.UseDate.useDate());
+        setLastUpdateDate(Utility.UseDate.useDate());
 
     }
+
     @PreUpdate
-    public void perUpdate(){
-        setLastUpdateDate(ZonedDateTime.now());
+    public void perUpdate() {
+        setLastUpdateDate(Utility.UseDate.useDate());
     }
 
 }

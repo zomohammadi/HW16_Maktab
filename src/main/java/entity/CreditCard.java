@@ -1,11 +1,13 @@
 package entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToOne;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 
-import java.time.LocalDate;
+import java.time.ZonedDateTime;
 
 @SuperBuilder
 @Entity
@@ -31,5 +33,5 @@ public class CreditCard extends BaseEntity {
     String cvv2;
 
     @Column(name = EXPIRATION_DATE)
-    LocalDate expirationDate;
+    ZonedDateTime expirationDate;
 }

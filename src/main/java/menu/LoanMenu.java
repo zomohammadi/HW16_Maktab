@@ -10,7 +10,7 @@ import service.*;
 import util.ApplicationContext;
 
 import java.time.LocalDate;
-import java.time.Month;
+import java.time.ZonedDateTime;
 import java.util.Scanner;
 
 public class LoanMenu {
@@ -36,7 +36,7 @@ public class LoanMenu {
     }
 
 
-    public void showLoanMenu(Student token, LocalDate currentDate) {
+    public void showLoanMenu(Student token, ZonedDateTime currentDate) {
         Scanner input = new Scanner(System.in);
         boolean continueRunning = true;
         while (continueRunning) {
@@ -60,9 +60,7 @@ public class LoanMenu {
                 switch (option) {
                     case 1 -> registerEducationLoan(token, currentDate, input, LoanType.Education);
                     case 2 -> registerTuitionLoan(token, currentDate, input);
-                    case 3 -> {
-                        if (registerMortgage(token, currentDate, input)) return;
-                    }
+                    case 3 -> registerMortgage(token, currentDate, input);
                     case 4 -> continueRunning = false;
                     default -> System.out.println("Wrong option!");
                 }
@@ -74,7 +72,7 @@ public class LoanMenu {
         }
     }
 
-    private boolean registerMortgage(Student token, LocalDate currentDate, Scanner input) {
+    private void registerMortgage(Student token, ZonedDateTime currentDate, Scanner input) {
         if (!token.isMarried()) {
             System.out.println("You are not permit to Register Mortgage");
         } else {
@@ -88,7 +86,7 @@ public class LoanMenu {
             loan = loanService.findStudentMortgage(token, token.getDegree(), LoanType.Mortgage);
             if (loan != null) {
                 System.out.println("You are currently getting a mortgage at this point");
-                return true;
+                return;
             }
         } catch (LoanExceptions.NotFoundException e) {
             try {
@@ -109,7 +107,7 @@ public class LoanMenu {
                                 Your partner received a mortgage while studying
                                 Therefore, you are not allowed to get a mortgage.
                                          """);
-                        return true;
+                        return ;
                     }
                 } catch (LoanExceptions.NotFoundException e1) {
                     loanOperation(token, input, currentDate);
@@ -117,10 +115,9 @@ public class LoanMenu {
                 }
             }
         }
-        return false;
     }
 
-    private void loanOperation(Student token, Scanner input, LocalDate currentDate) {
+    private void loanOperation(Student token, Scanner input, ZonedDateTime currentDate) {
         Loan loan;
         Double amountOfLoan = getAmountOfLoan(
                 token.getUniversity().getCity().getTypeOfCity()
@@ -131,16 +128,16 @@ public class LoanMenu {
             System.out.print("Enter the Contract Number (13 digit): ");
             contractNumber = input.nextLine();
         } while (!fillInputNumbers(contractNumber, 13));
-        do {
-            System.out.print("Enter the address: ");
-            address = input.nextLine();
-        } while (!fillInputString(address));
+
+        System.out.print("Enter the address: ");
+        address = input.nextLine();
+
 
         //get CreditCard
         boolean conditions;
         String cardNumber;
         String cvv2 = null;
-        LocalDate expirationDate = null;
+        ZonedDateTime expirationDate = null;
         CreditCard creditCard = null;
         Account account = null;
         do {
@@ -211,7 +208,7 @@ public class LoanMenu {
         System.out.println("The operation was successful.");
     }
 
-    private void registerTuitionLoan(Student token, LocalDate currentDate, Scanner input) {
+    private void registerTuitionLoan(Student token, ZonedDateTime currentDate, Scanner input) {
 
         //-------------------------------------------------------------------------
         if (token.getAdmissionType() == AdmissionType.Daytime) {
@@ -222,7 +219,7 @@ public class LoanMenu {
 
     }
 
-    private void registerEducationLoan(Student token, LocalDate currentDate, Scanner input, LoanType loanType) {
+    private void registerEducationLoan(Student token, ZonedDateTime currentDate, Scanner input, LoanType loanType) {
         String termType;
         termType = getCurrentTermType(currentDate);
         if (checkStudentGetLoanInTermOfYear(token, currentDate, termType, String.valueOf(loanType)))
@@ -233,7 +230,7 @@ public class LoanMenu {
         boolean conditions;
         String cardNumber;
         String cvv2 = null;
-        LocalDate expirationDate = null;
+        ZonedDateTime expirationDate = null;
         Account account = null;
         CreditCard creditCard = null;
         do {
@@ -362,8 +359,8 @@ public class LoanMenu {
         return amountOfLoan;
     }
 
-    private LocalDate enterExpirationDate(Scanner input) {
-        LocalDate expirationDate = null;
+    private ZonedDateTime enterExpirationDate(Scanner input) {
+        ZonedDateTime expirationDate = null;
         System.out.print("expiration date:  ");
         System.out.print("Enter the Year of expiration date:  ");
         String yearOfExpirationDate = input.nextLine();
@@ -381,15 +378,20 @@ public class LoanMenu {
                     default -> fillInputNumbersWithMinAndMaxDate(dayOfExpirationDate,
                             1, 29);
                 }
-                expirationDate = LocalDate.of(Integer.parseInt(yearOfExpirationDate),
-                        Integer.parseInt(monthExpirationDate), Integer.parseInt(dayOfExpirationDate));
+                LocalDate localDate = LocalDate.of(
+                        Integer.parseInt(yearOfExpirationDate),
+                        Integer.parseInt(monthExpirationDate),
+                        Integer.parseInt(dayOfExpirationDate)
+                );
+
+                expirationDate = localDate.atStartOfDay(ZonedDateTime.now().getZone());
 
             }
         }
         return expirationDate;
     }
 
-    private boolean checkCardIsExpired(LocalDate currentDate, boolean conditions, LocalDate expirationDate) {
+    private boolean checkCardIsExpired(ZonedDateTime currentDate, boolean conditions, ZonedDateTime expirationDate) {
         if (currentDate.getYear() < expirationDate.getYear()) {
             System.out.print("");
         } else if (currentDate.getYear() == expirationDate.getYear()) {
@@ -467,7 +469,7 @@ public class LoanMenu {
     }
 
 
-    private boolean checkStudentGetLoanInTermOfYear(Student token, LocalDate currentDate, String termType, String
+    private boolean checkStudentGetLoanInTermOfYear(Student token, ZonedDateTime currentDate, String termType, String
             loanType) {
         try {
             loanService.findLoanForStudentInTerm(currentDate.getYear(),
@@ -475,7 +477,6 @@ public class LoanMenu {
             System.out.println("You have received a loan this semester");
             return true;
         } catch (LoanExceptions.NotFoundException e) {
-            System.out.println(e.getMessage());
             System.out.println("this student has not received a loan this semester");
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -483,7 +484,7 @@ public class LoanMenu {
         return false;
     }
 
-    private String getCurrentTermType(LocalDate currentDate) {
+    private String getCurrentTermType(ZonedDateTime currentDate) {
         String termType = null;
         if (isAbanRange(currentDate)) {
             termType = String.valueOf(TermType.Autumn);
@@ -492,9 +493,11 @@ public class LoanMenu {
         return termType;
     }
 
-    private boolean isAbanRange(LocalDate currentDate) {
-        LocalDate startOfRange = LocalDate.of(currentDate.getYear(), Month.OCTOBER, 22);
-        LocalDate endOfRange = LocalDate.of(currentDate.getYear(), Month.OCTOBER, 28);
+    private boolean isAbanRange(ZonedDateTime currentDate) {
+        ZonedDateTime startOfRange = ZonedDateTime.of(currentDate.getYear(), 10, 22
+                , 0, 0, 0, 0, ZonedDateTime.now().getZone());
+        ZonedDateTime endOfRange = ZonedDateTime.of(currentDate.getYear(), 10, 28
+                , 23, 59, 59, 0, ZonedDateTime.now().getZone());
 
         return !currentDate.isBefore(startOfRange) && !currentDate.isAfter(endOfRange);
     }
@@ -567,9 +570,11 @@ public class LoanMenu {
         return false;
     }
 
-    private boolean isBahmanRange(LocalDate currentDate) {
-        LocalDate startOfRange = LocalDate.of(currentDate.getYear(), Month.FEBRUARY, 13);
-        LocalDate endOfRange = LocalDate.of(currentDate.getYear(), Month.FEBRUARY, 19);
+    private boolean isBahmanRange(ZonedDateTime currentDate) {
+        ZonedDateTime startOfRange = ZonedDateTime.of(currentDate.getYear(), 2, 13,
+                0, 0, 0, 0, ZonedDateTime.now().getZone());
+        ZonedDateTime endOfRange = ZonedDateTime.of(currentDate.getYear(), 2, 19
+                , 23, 59, 59, 0, ZonedDateTime.now().getZone());
 
         return !currentDate.isBefore(startOfRange) && !currentDate.isAfter(endOfRange);
     }

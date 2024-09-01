@@ -2,7 +2,7 @@ package service;
 
 import entity.Student;
 
-import java.time.LocalDate;
+import java.time.ZonedDateTime;
 
 public interface StudentService {
    // String generateSecurePassword();
@@ -10,6 +10,6 @@ public interface StudentService {
     Student login(String username, String password);
     boolean existsNationalCode(String nationalCode);
     Student findStudentByNationalCode(String nationalCode);
-    LocalDate calculateGraduationDate(Student student);
- boolean checkStudentIsGraduation(LocalDate currentDate, LocalDate graduationDate);
+ ZonedDateTime calculateGraduationDate(Student student);
+ boolean checkStudentIsGraduation(ZonedDateTime currentDate, ZonedDateTime graduationDate);
 }
