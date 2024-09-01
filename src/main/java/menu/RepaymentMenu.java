@@ -56,15 +56,23 @@ public class RepaymentMenu {
 
                         //   checkInputIsEqualToList(input, result,paymentId);
                         String paymentId;
-                        boolean condition = false;
+                        boolean condition;
                         do {
+
                             paymentId = enterNumber(input);
-                            if (!checkInputIsEqualToList(result, paymentId)) return;
-                            if (condition) System.out.println("your input is not from above list!!");
+
+                            if (checkInputIsEqualToList(result, paymentId)) {
+                                condition = false;
+                                break;
+                            } else {
+                                condition = true;
+                                System.out.println("Please choose a number from the above list ");
+                            }
+
                         } while (condition);
 
                         String cardNumber;
-                        String cvv2 = null;
+                        String cvv2;
                         LocalDate expirationDate;
 
                         cardNumber = enterCardNumber(input);
@@ -76,20 +84,17 @@ public class RepaymentMenu {
 
                             if (expirationDate != null) expireDateCondition = false;
                         } while (expireDateCondition);
-
+/*
                         if (checkCardIsExpired(currentDate, expirationDate)) {
                             return;
-                        }
-                        int updateResult = -1;
+                        }*/
+                        int updateResult = 0;
                         try {
 
-                            updateResult = paymentService.update(Long.valueOf(paymentId), token.getId(), cardNumber, cvv2, expirationDate);
+                            updateResult = paymentService.update(Long.valueOf(paymentId),
+                                    token.getId(), cardNumber, cvv2, expirationDate);
                         } catch (Exception e) {
                             System.out.println(e.getMessage());
-                            System.out.println("------------------");
-                            System.out.println(e.getStackTrace());
-                            System.out.println("------------------");
-                            System.out.println(e.getCause());
                         }
                         if (updateResult == 0)
                             System.out.println("No payable installments were found with these card details. ");
@@ -189,7 +194,7 @@ public class RepaymentMenu {
         }
         return expirationDate;
     }
-
+/*
     private boolean checkCardIsExpired(LocalDate currentDate, LocalDate expirationDate) {
         boolean conditions;
         if (currentDate.getYear() < expirationDate.getYear()) {
@@ -209,7 +214,7 @@ public class RepaymentMenu {
             conditions = true;
         }
         return conditions;
-    }
+    }*/
 
     private boolean fillInputNumbersWithMinAndMaxDate(String input, int minDigit, int maxDigit) {
         if (checkedNullInput(input)) return false;
@@ -253,19 +258,4 @@ public class RepaymentMenu {
         return fillInputNumbers_v2(input);
     }
 
-    private Long checkNumber(Scanner input) {
-        String id = input.nextLine();
-        if (id == null || id.isEmpty()) {
-            System.out.println("Input can not be null or empty");
-            return null;
-        }
-        char[] chars = id.toCharArray();
-        for (char c : chars) {
-            if (!Character.isDigit(c)) {
-                System.out.println("Input must contain only digit between (0-9)");
-                return null;
-            }
-        }
-        return Long.valueOf(id);
-    }
 }

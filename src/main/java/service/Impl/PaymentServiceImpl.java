@@ -6,6 +6,7 @@ import entity.Student;
 import exceptions.PaymentExceptions;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.Tuple;
+import repository.BaseEntityRepository;
 import repository.PaymentRepository;
 import service.PaymentService;
 import util.ApplicationContext;
@@ -16,9 +17,11 @@ import java.util.List;
 
 public class PaymentServiceImpl implements PaymentService {
     private final PaymentRepository paymentRepository;
+    private final BaseEntityRepository<Payment> paymentBaseEntityRepository;
 
-    public PaymentServiceImpl(PaymentRepository paymentRepository) {
+    public PaymentServiceImpl(PaymentRepository paymentRepository, BaseEntityRepository<Payment> paymentBaseEntityRepository) {
         this.paymentRepository = paymentRepository;
+        this.paymentBaseEntityRepository = paymentBaseEntityRepository;
     }
 
     @Override
@@ -88,7 +91,8 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public int update(Long paymentId, Long studentId, String cardNumber, String cvv2, LocalDate expirationDate) {
         try {
-            return paymentRepository.update(paymentId, studentId, cardNumber, cvv2, expirationDate);
+            Payment payment = paymentBaseEntityRepository.findById(paymentId);
+            return paymentRepository.update(payment, studentId, cardNumber, cvv2, expirationDate);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
