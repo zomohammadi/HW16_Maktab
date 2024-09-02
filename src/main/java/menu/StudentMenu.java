@@ -2,12 +2,10 @@ package menu;
 
 import entity.Student;
 import service.StudentService;
+import util.Utility;
 
-import java.time.LocalDate;
-import java.time.Month;
+import java.time.ZonedDateTime;
 import java.util.Scanner;
-
-import static util.Utility.getDate;
 
 public class StudentMenu {
     private final LoanMenu loanMenu;
@@ -39,17 +37,17 @@ public class StudentMenu {
             }
             try {
                 int option = Integer.parseInt(stringOption);
-                /*LocalDate currentDate = getDate(date -> null);*/
-                //LocalDate currentDate = getDate(date -> LocalDate.of(2020, 10, 23));
-                //     LocalDate currentDate = getDate(date -> LocalDate.of(2019, 2, 14));
-                LocalDate currentDate = getDate(date -> LocalDate.of(2021, 10, 23));
+
+                //get current date
+                ZonedDateTime currentDate = Utility.UseDate.useDate();
+
                 switch (option) {
                     case 1 -> loanRegistration(token, currentDate);
 
                     case 2 -> {
                         if (studentService.checkStudentIsGraduation(currentDate,
                                 studentService.calculateGraduationDate(token))) {
-                            repaymentMenu.showRepaymentMenu(token,currentDate);
+                            repaymentMenu.showRepaymentMenu(token);
                         } else {
                             System.out.println("Loan repayment has not been activated for you!");
                         }
@@ -57,15 +55,15 @@ public class StudentMenu {
                     case 3 -> continueRunning = false;
                     default -> System.out.println("Wrong option!");
                 }
+            } catch (NumberFormatException e) {
+                System.out.println("Wrong option!");
             } catch (Exception e) {
-                if (e instanceof NumberFormatException) {
-                    System.out.println("Wrong option!");
-                }
+                System.out.println("An unexpected error occurred: " + e.getMessage());
             }
         }
     }
 
-    private void loanRegistration(Student token, LocalDate currentDate) {
+    private void loanRegistration(Student token, ZonedDateTime currentDate) {
         if (studentService.checkStudentIsGraduation(currentDate,
                 studentService.calculateGraduationDate(token))) {
             System.out.println("you graduated!");
@@ -78,19 +76,21 @@ public class StudentMenu {
         }
     }
 
-    private boolean isAbanRange(LocalDate currentDate) {
-        LocalDate startOfRange = LocalDate.of(currentDate.getYear(), Month.OCTOBER, 23);
-        LocalDate endOfRange = LocalDate.of(currentDate.getYear(), Month.OCTOBER, 29);
+    private boolean isAbanRange(ZonedDateTime currentDate) {
+        ZonedDateTime startOfRange = ZonedDateTime.of(currentDate.getYear(), 10, 23,
+                0, 0, 0, 0, ZonedDateTime.now().getZone());
+        ZonedDateTime endOfRange = ZonedDateTime.of(currentDate.getYear(), 10, 29
+                , 23, 59, 59, 0, ZonedDateTime.now().getZone());
 
         return !currentDate.isBefore(startOfRange) && !currentDate.isAfter(endOfRange);
     }
 
-    private boolean isBahmanRange(LocalDate currentDate) {
-        LocalDate startOfRange = LocalDate.of(currentDate.getYear(), Month.FEBRUARY, 14);
-        LocalDate endOfRange = LocalDate.of(currentDate.getYear(), Month.FEBRUARY, 20);
+    private boolean isBahmanRange(ZonedDateTime currentDate) {
+        ZonedDateTime startOfRange = ZonedDateTime.of(currentDate.getYear(), 2, 14,
+                0, 0, 0, 0, ZonedDateTime.now().getZone());
+        ZonedDateTime endOfRange = ZonedDateTime.of(currentDate.getYear(), 2, 20
+                , 23, 59, 59, 0, ZonedDateTime.now().getZone());
 
         return !currentDate.isBefore(startOfRange) && !currentDate.isAfter(endOfRange);
     }
-
-
 }
