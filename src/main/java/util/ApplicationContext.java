@@ -55,7 +55,7 @@ public class ApplicationContext {
         LoginMenu loginMenu = new LoginMenu(studentService,
                 cityService, universityService);
         LoanMenu loanMenu = new LoanMenu(termService, loanService, bankService,
-                accountService, creditCardService, /*loanCreditCardService,*/ studentService, mortgageDetailService, paymentService);
+                accountService, creditCardService, studentService, mortgageDetailService, paymentService);
         RepaymentMenu repaymentMenu=new RepaymentMenu(paymentService);
         StudentMenu studentMenu = new StudentMenu(loanMenu, studentService, repaymentMenu);
         this.mainMenu = new MainMenu(loginMenu, loanMenu, studentMenu);

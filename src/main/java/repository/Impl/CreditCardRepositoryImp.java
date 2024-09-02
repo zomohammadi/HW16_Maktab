@@ -18,13 +18,12 @@ public class CreditCardRepositoryImp extends BaseEntityRepositoryImpl<CreditCard
     }
 
     @Override
-    public Tuple findByCardNumber(String cardNumber, Long id) {
+    public Tuple findByCardNumber(String cardNumber) {
         TypedQuery<Tuple> query = getEntityManager().createQuery("""
-                select u as creditCard ,a as account from CreditCard u,Account a
-                where u.account=a and u.cardNumber = ?1 and a.student.id = ?2
+                select u as creditCard ,a as account,s as student from CreditCard u,Account a,Student s
+                where u.account=a and u.cardNumber = ?1 and s=a.student
                 """, Tuple.class);
         query.setParameter(1, cardNumber);
-        query.setParameter(2, id);
         return query.getSingleResult();
     }
 

@@ -8,8 +8,6 @@ import repository.BaseEntityRepository;
 import repository.CreditCardRepository;
 import service.CreditCardService;
 
-import java.time.LocalDate;
-
 public class CreditCardServiceImpl implements CreditCardService {
     private final BaseEntityRepository<CreditCard> creditCardBaseEntityRepository;
     private final CreditCardRepository creditCardRepository;
@@ -26,9 +24,9 @@ public class CreditCardServiceImpl implements CreditCardService {
     }
 
     @Override
-    public Tuple findByCardNumber(String cardNumber, Long id) {
+    public Tuple findByCardNumber(String cardNumber) {
         try {
-            return creditCardRepository.findByCardNumber(cardNumber, id);
+            return creditCardRepository.findByCardNumber(cardNumber);
         } catch (NoResultException e) {
             throw new CreditCardExceptions.NotFoundException();
         }

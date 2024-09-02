@@ -59,11 +59,15 @@ public class LoginMenu {
                     }
                     default -> System.out.println("Wrong option!");
                 }
+            } catch (NumberFormatException e) {
+                System.out.println("Wrong option!");
             } catch (Exception e) {
+                System.out.println("An unexpected error occurred: " + e.getMessage());
+            } /*catch (Exception e) {
                 if (e instanceof NumberFormatException) {
                     System.out.println("Wrong option!");
                 }
-            }
+            }*/
         }
     }
 
@@ -106,7 +110,7 @@ public class LoginMenu {
         boolean isMarried = false;
         boolean haveDormitory = false;
 
-        boolean continues ;
+        boolean continues;
         do {
             System.out.print("Enter the FirstName: ");
             firstName = input.nextLine();
@@ -139,7 +143,7 @@ public class LoginMenu {
             }
         } catch (StudentExceptions.NotFoundException e) {
             System.out.println();
-        }catch (StudentExceptions.DatabaseAccessException e) {
+        } catch (StudentExceptions.DatabaseAccessException e) {
             System.out.println(e.getMessage());
         }
 
@@ -234,7 +238,6 @@ public class LoginMenu {
                     isMarried = false;
                     continues = false;
                 }
-
                 case "1" -> {
                     isMarried = true;
                     continues = false;
@@ -258,7 +261,6 @@ public class LoginMenu {
                         haveDormitory = false;
                         continues = false;
                     }
-
                     case "1" -> {
                         haveDormitory = true;
                         continues = false;

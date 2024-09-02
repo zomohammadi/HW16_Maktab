@@ -1,7 +1,6 @@
 package repository.Impl;
 
 import entity.City;
-import entity.University;
 import jakarta.persistence.EntityManager;
 import repository.CityRepository;
 

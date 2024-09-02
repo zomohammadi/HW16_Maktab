@@ -52,12 +52,11 @@ public class Utility {
         public static ZonedDateTime useDate() {
             /* ZonedDateTime currentDate = getDate(date -> null);*/
 
-             ZonedDateTime currentDate = getDate(date -> ZonedDateTime.of(2018, 10, 23 , ZonedDateTime.now().getHour(), ZonedDateTime.now().getMinute(),
-                                ZonedDateTime.now().getSecond(), 0, ZonedDateTime.now().getZone()));
+             /*ZonedDateTime currentDate = getDate(date -> ZonedDateTime.of(2018, 10, 23 , ZonedDateTime.now().getHour(), ZonedDateTime.now().getMinute(),
+                                ZonedDateTime.now().getSecond(), 0, ZonedDateTime.now().getZone()));*/
 
-           /* ZonedDateTime currentDate = getDate(date -> ZonedDateTime.of(2019, 2, 14 , ZonedDateTime.now().getHour(), ZonedDateTime.now().getMinute(),
+            ZonedDateTime currentDate = getDate(date -> ZonedDateTime.of(2019, 2, 14 , ZonedDateTime.now().getHour(), ZonedDateTime.now().getMinute(),
                               ZonedDateTime.now().getSecond(), 0, ZonedDateTime.now().getZone()));
-            */
 
            /* ZonedDateTime currentDate = getDate(date -> ZonedDateTime.of(2021, 10, 23
                     , ZonedDateTime.now().getHour(), ZonedDateTime.now().getMinute(),

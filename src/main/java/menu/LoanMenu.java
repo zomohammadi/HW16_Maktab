@@ -64,10 +64,11 @@ public class LoanMenu {
                     case 4 -> continueRunning = false;
                     default -> System.out.println("Wrong option!");
                 }
+            } catch (NumberFormatException e) {
+                System.out.println("Wrong option!");
             } catch (Exception e) {
-                if (e instanceof NumberFormatException) {
-                    System.out.println("Wrong option!");
-                }
+                System.out.println("An unexpected error occurred: " + e.getMessage());
+                e.printStackTrace();  // This will print the stack trace for debugging
             }
         }
     }
@@ -107,7 +108,7 @@ public class LoanMenu {
                                 Your partner received a mortgage while studying
                                 Therefore, you are not allowed to get a mortgage.
                                          """);
-                        return ;
+                        return;
                     }
                 } catch (LoanExceptions.NotFoundException e1) {
                     loanOperation(token, input, currentDate);
@@ -144,9 +145,16 @@ public class LoanMenu {
             conditions = false;
             cardNumber = enterCardNumber(input);
             try {
-                Tuple result = creditCardService.findByCardNumber(cardNumber, token.getId());
+                Tuple result = creditCardService.findByCardNumber(cardNumber);
                 creditCard = result.get("creditCard", CreditCard.class);
                 account = result.get("account", Account.class);
+                Student student = result.get("student", Student.class);
+                if (!student.equals(token)) {
+                    System.out.println("The entered card number has already been entered by someone else.");
+                    conditions = true;
+                    creditCard = null;
+                    account = null;
+                }
             } catch (CreditCardExceptions.NotFoundException e6) {
                 cvv2 = enterCvv2(input);
                 boolean expireDateCondition = true;
@@ -159,10 +167,8 @@ public class LoanMenu {
                     if (expirationDate != null) expireDateCondition = false;
                 } while (expireDateCondition);
 
-                conditions = checkCardIsExpired(currentDate,
-                        false, expirationDate);
-                if (conditions)
-                    System.out.println("Enter the Card Number that is not expired");
+                conditions = checkCardIsExpired(currentDate, false, expirationDate);
+                if (conditions) System.out.println("Enter the Card Number that is not expired");
 
             }
 
@@ -203,7 +209,6 @@ public class LoanMenu {
                 .contractNumber(contractNumber).build();
 
         mortgageDetailService.save(mortgageDetail);
-        // loanCreditCardService.save(loanCreditCard);
 
         System.out.println("The operation was successful.");
     }
@@ -237,16 +242,23 @@ public class LoanMenu {
             conditions = false;
             cardNumber = enterCardNumber(input);
             try {
-                Tuple result = creditCardService.findByCardNumber(cardNumber, token.getId());
+                Tuple result = creditCardService.findByCardNumber(cardNumber);
                 creditCard = result.get("creditCard", CreditCard.class);
                 account = result.get("account", Account.class);
+                Student student = result.get("student", Student.class);
+                if (!student.equals(token)) {
+                    System.out.println("The entered card number has already been entered by someone else.");
+                    conditions = true;
+                    creditCard = null;
+                    account = null;
+                }
             } catch (CreditCardExceptions.NotFoundException e6) {
                 cvv2 = enterCvv2(input);
                 boolean expireDateCondition = true;
                 do {
                     try {
                         expirationDate = enterExpirationDate(input);
-                    } catch (Exception e) {
+                    } catch (Exception e4) {
                         System.out.println("invalid number! input the number");
                     }
                     if (expirationDate != null) expireDateCondition = false;
@@ -368,16 +380,7 @@ public class LoanMenu {
             System.out.print("Enter the Month Of expiration date: ");
             String monthExpirationDate = input.nextLine();
             if (fillInputNumbersWithMinAndMaxDate(monthExpirationDate, 1, 12)) {
-                System.out.print("Enter the Day Of expiration date: ");
-                String dayOfExpirationDate = input.nextLine();
-                switch (Integer.parseInt(monthExpirationDate)) {
-                    case 1, 3, 5, 6, 7, 8, 10, 12 -> fillInputNumbersWithMinAndMaxDate(dayOfExpirationDate,
-                            1, 31);
-                    case 4, 9, 11 -> fillInputNumbersWithMinAndMaxDate(dayOfExpirationDate,
-                            1, 30);
-                    default -> fillInputNumbersWithMinAndMaxDate(dayOfExpirationDate,
-                            1, 29);
-                }
+                String dayOfExpirationDate = getDayOfExpirationDate(input, monthExpirationDate);
                 LocalDate localDate = LocalDate.of(
                         Integer.parseInt(yearOfExpirationDate),
                         Integer.parseInt(monthExpirationDate),
@@ -389,6 +392,20 @@ public class LoanMenu {
             }
         }
         return expirationDate;
+    }
+
+    private String getDayOfExpirationDate(Scanner input, String monthExpirationDate) {
+        System.out.print("Enter the Day Of expiration date: ");
+        String dayOfExpirationDate = input.nextLine();
+        switch (Integer.parseInt(monthExpirationDate)) {
+            case 1, 3, 5, 6, 7, 8, 10, 12 -> fillInputNumbersWithMinAndMaxDate(dayOfExpirationDate,
+                    1, 31);
+            case 4, 9, 11 -> fillInputNumbersWithMinAndMaxDate(dayOfExpirationDate,
+                    1, 30);
+            default -> fillInputNumbersWithMinAndMaxDate(dayOfExpirationDate,
+                    1, 29);
+        }
+        return dayOfExpirationDate;
     }
 
     private boolean checkCardIsExpired(ZonedDateTime currentDate, boolean conditions, ZonedDateTime expirationDate) {
@@ -527,8 +544,6 @@ public class LoanMenu {
     private boolean fillInputNumbersWithMinAndMaxDate(String input, int minDigit, int maxDigit) {
         if (checkedNullInput(input)) return false;
         try {
-
-
             if (Integer.parseInt(input) > maxDigit || Integer.parseInt(input) < minDigit) {
                 System.out.println("input must be between " + minDigit + " and " + maxDigit + " digit number");
                 return false;
@@ -537,29 +552,6 @@ public class LoanMenu {
         } catch (Exception e) {
             throw new RuntimeException();
         }
-    }
-
-
-    private boolean fillInputString(String input) {
-        if (checkedNullInput(input)) return false;
-        return fillInputString_v2(input);
-    }
-
-    private boolean fillInputString_v2(String input) {
-        char[] chars = input.toCharArray();
-        if (chars[0] == ' ') {
-            System.out.println("can not start with space");
-            return false;
-        }
-        for (char c : chars) {
-            if ((int) c != 32) {
-                if (!Character.isLetter(c)) {
-                    System.out.println("Input must contain only letters between (a-z) or (A-Z)");
-                    return false;
-                }
-            }
-        }
-        return true;
     }
 
     private boolean checkedNullInput(String input) {

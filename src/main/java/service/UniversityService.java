@@ -1,6 +1,5 @@
 package service;
 
-import entity.Student;
 import entity.University;
 
 public interface UniversityService {

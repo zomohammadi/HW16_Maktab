@@ -4,14 +4,12 @@ import entity.BaseEntity;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Root;
 import repository.BaseEntityRepository;
 
 import java.util.List;
 
 public abstract class BaseEntityRepositoryImpl<T extends BaseEntity> implements BaseEntityRepository<T> {
     private final EntityManager entityManager;
-    private CriteriaBuilder criteriaBuilder;
 
     public BaseEntityRepositoryImpl(EntityManager entityManager) {
         this.entityManager = entityManager;
@@ -28,11 +26,10 @@ public abstract class BaseEntityRepositoryImpl<T extends BaseEntity> implements 
     }
 
     public List<T> findAll() {
-        criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<T> query = criteriaBuilder.createQuery(getEntityClass());
-        Root<T> employeeRoot = query.from(getEntityClass());
+        query.from(getEntityClass());
         return entityManager.createQuery(query).getResultList();
-        // TypedQuery<Employee> query1 = entityManager.createQuery(query);
     }
 
     public abstract Class<T> getEntityClass();
