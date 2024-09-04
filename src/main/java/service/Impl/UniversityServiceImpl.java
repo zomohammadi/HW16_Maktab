@@ -3,6 +3,7 @@ package service.Impl;
 import entity.University;
 import exceptions.UniversityExceptions;
 import jakarta.persistence.EntityExistsException;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.TransactionRequiredException;
 import repository.BaseEntityRepository;
@@ -53,17 +54,15 @@ public class UniversityServiceImpl implements UniversityService {
             if (name == null || name.trim().isEmpty()) {
                 throw new UniversityExceptions.InvalidArgumentException("The university name cannot be null or empty", null);
             }
-
             // Attempt to find the university by name
             university = universityRepository.findByName(name);
-
 
             return university;
 
         } catch (IllegalArgumentException e) {
             throw new UniversityExceptions.InvalidArgumentException("Invalid argument passed", e);
-        } catch (PersistenceException e) {
-            throw new UniversityExceptions.DatabaseAccessException( e.getMessage());
+        } catch (NoResultException e) {
+            throw new UniversityExceptions.NotFoundException( e.getMessage());
         } catch (Exception e) {
             System.out.println("Error: University not found. " + e.getMessage());
             throw new RuntimeException("An unexpected error occurred during findByName", e);

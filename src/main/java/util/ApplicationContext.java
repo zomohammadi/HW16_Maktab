@@ -39,24 +39,25 @@ public class ApplicationContext {
         BaseEntityRepository<MortgageDetail> mortgageDetailBaseEntityRepository = new MortgageDetailRepositoryImp(em);
         PaymentRepository paymentRepository = new PaymentRepositoryImp(em);
         BaseEntityRepository<Payment> paymentBaseEntityRepository = new PaymentRepositoryImp(em);
+        BaseEntityRepository<Bank> bankBaseEntityRepository = new BankRepositoryImpl(em);
 
         studentService = new StudentServiceImpl(studentBaseEntityRepository, studentRepository);
         UniversityService universityService = new UniversityServiceImpl(universityBaseEntityRepository, universityRepository);
         CityService cityService = new CityServiceImpl(cityBaseEntityRepository);
         TermService termService = new TermServiceImpl(termBaseEntityRepository);
         LoanService loanService = new LoanServiceImpl(loanRepository, loanBaseEntityRepository);
-        BankService bankService = new BankServiceImpl(bankRepository);
+        BankService bankService = new BankServiceImpl(bankRepository, bankBaseEntityRepository);
 
         AccountService accountService = new AccountServiceImpl(accountBaseEntityRepository);
         CreditCardService creditCardService = new CreditCardServiceImpl(creditCardBaseEntityRepository, creditCardRepository);
         MortgageDetailService mortgageDetailService = new MortgageDetailServiceImpl(mortgageDetailBaseEntityRepository);
-        PaymentService paymentService = new PaymentServiceImpl( paymentRepository, paymentBaseEntityRepository);
+        PaymentService paymentService = new PaymentServiceImpl(paymentRepository, paymentBaseEntityRepository);
         //menu
         LoginMenu loginMenu = new LoginMenu(studentService,
                 cityService, universityService);
         LoanMenu loanMenu = new LoanMenu(termService, loanService, bankService,
                 accountService, creditCardService, studentService, mortgageDetailService, paymentService);
-        RepaymentMenu repaymentMenu=new RepaymentMenu(paymentService);
+        RepaymentMenu repaymentMenu = new RepaymentMenu(paymentService);
         StudentMenu studentMenu = new StudentMenu(loanMenu, studentService, repaymentMenu);
         this.mainMenu = new MainMenu(loginMenu, loanMenu, studentMenu);
     }

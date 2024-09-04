@@ -107,206 +107,106 @@ public class LoginMenu {
         String typeOfUniversity = null;
         String admissionType = null;
         City city = null;
-        boolean isMarried = false;
+        boolean isMarried;
         boolean haveDormitory = false;
 
         boolean continues;
-        do {
-            System.out.print("Enter the FirstName: ");
-            firstName = input.nextLine();
-        } while (!fillInputString(firstName));
-        do {
-            System.out.print("Enter the LastName: ");
-            lastName = input.nextLine();
-        } while (!fillInputString(lastName));
-        do {
-            System.out.print("Enter the fatherName: ");
-            fatherName = input.nextLine();
-        } while (!fillInputString(fatherName));
-        do {
-            System.out.print("Enter the motherName: ");
-            motherName = input.nextLine();
-        } while (!fillInputString(motherName));
-        do {
-            System.out.print("Enter the Birth Certificate Number: ");
-            birthCertificateNumber = input.nextLine();
-        } while (!fillInputNumbersWithMinAndMaxNumber(birthCertificateNumber, 1, 10));
-        do {
-            System.out.print("Enter the National Code (10 digit): ");
-            nationalCode = input.nextLine();
-        } while (!fillInputNumbers(nationalCode, 10));
-        try {
+        firstName = getFirstName(input);
+        lastName = getLastName(input);
+        fatherName = getFatherName(input);
+        motherName = getMotherName(input);
 
-            if (studentService.existsNationalCode(nationalCode)) {
+        birthCertificateNumber = getCertificateNumber(input);
+        boolean condition;
+        do {
+            condition = false;
+            nationalCode = getNationalCode(input);
+            try {
+                studentService.findStudentByNationalCode(nationalCode);
                 System.out.println("the student with national code are exists! ");
-                return false;
+                condition = true;
+
+            } catch (StudentExceptions.NotFoundException e) {
+                System.out.println();
             }
-        } catch (StudentExceptions.NotFoundException e) {
-            System.out.println();
-        } catch (StudentExceptions.DatabaseAccessException e) {
-            System.out.println(e.getMessage());
-        }
+        } while (condition);
 
         do {
-            System.out.print("Enter the STUDENT CODE (5 digit): ");
-            studentCode = input.nextLine();
-        } while (!fillInputNumbers(studentCode, 5));
-        do {
-            System.out.print("Enter the entryYear: ");
-            entryYear = input.nextLine();
-        } while (!fillInputNumbersWithMinAndMaxYear(entryYear, 2010, 2024));
-        while (true) {
-            System.out.print("Enter the Year Of Birthdate: ");
-            String yearOfBirthdate = input.nextLine();
-            if (fillInputNumbersWithMinAndMaxYear(yearOfBirthdate, 1930, 2006)) {
-                System.out.print("Enter the Month Of Birthdate: ");
-                String monthOfBirthdate = input.nextLine();
-                if (fillInputNumbersWithMinAndMaxYear(monthOfBirthdate, 1, 12)) {
-                    System.out.print("Enter the Day Of Birthdate: ");
-                    String dayOfBirthdate = input.nextLine();
-                    switch (Integer.parseInt(monthOfBirthdate)) {
-                        case 1, 3, 5, 6, 7, 8, 10, 12 -> fillInputNumbersWithMinAndMaxYear(dayOfBirthdate, 1, 31);
-                        case 4, 9, 11 -> fillInputNumbersWithMinAndMaxYear(dayOfBirthdate, 1, 30);
-                        default -> fillInputNumbersWithMinAndMaxYear(dayOfBirthdate, 1, 29);
-                    }
-                    birthDate = LocalDate.of(Integer.parseInt(yearOfBirthdate), Integer.parseInt(monthOfBirthdate), Integer.parseInt(dayOfBirthdate));
-                    break;
-                }
-            }
-        }
+            condition = false;
+            studentCode = getStudentCode(input);
+            try {
+                studentService.findStudentByStudentCode(studentCode);
+                System.out.println("the student with Student Code are exists!");
+                condition = true;
 
-        do {
-
-            System.out.print("""
-                    Enter the Degree:
-                        Associate(Enter 0),
-                        Continuous_Bachelor(Enter 1),
-                        DisContinuous_Bachelor(Enter 2),
-                        IntegratedMaster(Enter 3),
-                        DisContinuousMaster(Enter 4),
-                        ProfessionalDoctorate(Enter 5),
-                        IntegratedDoctorate(Enter 6),
-                        PhD(Enter 7)
-                    """);
-            degree = input.nextLine();
-            switch (degree) {
-                case "0" -> {
-                    degree = "Associate";
-                    continues = false;
-                }
-                case "1" -> {
-                    degree = "Continuous_Bachelor";
-                    continues = false;
-                }
-                case "2" -> {
-                    degree = "DisContinuous_Bachelor";
-                    continues = false;
-                }
-                case "3" -> {
-                    degree = "IntegratedMaster";
-                    continues = false;
-                }
-                case "4" -> {
-                    degree = "DisContinuousMaster";
-                    continues = false;
-                }
-                case "5" -> {
-                    degree = "ProfessionalDoctorate";
-                    continues = false;
-                }
-                case "6" -> {
-                    degree = "IntegratedDoctorate";
-                    continues = false;
-                }
-                case "7" -> {
-                    degree = "PhD";
-                    continues = false;
-                }
-                default -> {
-                    System.out.println("Enter the valid number: ");
-                    continues = true;
-                }
+            } catch (StudentExceptions.NotFoundException e) {
+                System.out.println();
             }
-            //break;
-        } while (continues);
+        } while (condition);
 
-        do {
-            System.out.println("Is Married? (Enter 0 for No and 1 for Yes)");
-            String isMarriedInput = input.nextLine();
-            switch (isMarriedInput) {
-                case "0" -> {
-                    isMarried = false;
-                    continues = false;
-                }
-                case "1" -> {
-                    isMarried = true;
-                    continues = false;
-                }
-                default -> {
-                    System.out.println("Enter the valid number: ");
-                    continues = true;
-                }
-            }
-        } while (continues);
+        entryYear = getEntryYear(input);
+        birthDate = getBirthDate(input);
+        degree = getDegree(input);
+        isMarried = checkOperation("Is Married? (Enter 0 for No and 1 for Yes)", input);
+
         if (isMarried) {
             do {
-                System.out.println("Enter the PARTNER CODE: ");
-                partnerCode = input.nextLine();
-            } while (!fillInputNumbers(partnerCode, 10));
-            do {
-                System.out.println("have Dormitory? (Enter 0 for No and 1 for Yes)");
-                String haveDormitoryInput = input.nextLine();
-                switch (haveDormitoryInput) {
-                    case "0" -> {
-                        haveDormitory = false;
-                        continues = false;
-                    }
-                    case "1" -> {
-                        haveDormitory = true;
-                        continues = false;
-                    }
-                    default -> {
-                        System.out.println("Enter the valid number: ");
-                        continues = true;
-                    }
+                condition = false;
+                partnerCode = getPartnerCode(input);
+                try {
+                    studentService.findStudentByPartnerCode(partnerCode);
+                    System.out.println("the student with Partner Code are exists!");
+                    condition = true;
+
+                } catch (StudentExceptions.NotFoundException e) {
+                    System.out.println();
                 }
-            } while (continues);
+            } while (condition);
+            haveDormitory = checkOperation("have Dormitory? (Enter 0 for No and 1 for Yes)", input);
         }
 
-        do {
-            System.out.print("Enter the University Name: ");
-            universityName = input.nextLine();
-        } while (!fillInputString(universityName));
+        universityName = getUniversityName(input);
         University university = null;
         try {
             university = universityService.findByName(universityName);
             System.out.println("Found university: " + university.getName());
-        } catch (UniversityExceptions.DatabaseAccessException e) {
+        } catch (UniversityExceptions.NotFoundException e) {
             System.out.println();
-
             //list the city name with id List;
+            List<City> cities;
             try {
                 System.out.println("List of Cities: ");
-                List<City> cities = cityService.findAll();
+                cities = cityService.findAll();
                 cities.forEach(System.out::println);
             } catch (CityExceptions.CityNotFoundException e1) {
-                System.out.println("Error: " + e1.getMessage());
+                System.out.println("Error: contact your admin " + e1.getMessage());
                 return false;
             } catch (CityExceptions.CityDatabaseException e2) {
-                System.out.println("Database Error: " + e2.getMessage());
+                System.out.println("Database Error:  contact your admin " + e2.getMessage());
                 return false;
             } catch (Exception e3) {
-                System.out.println("Unexpected Error: " + e3.getMessage());
+                System.out.println("Unexpected Error: contact your admin " + e3.getMessage());
                 return false;
             }
 
-            //city => findById(id)
             String id;
+            boolean cityCheck = true;
             do {
-                System.out.print("Enter the city id of this List: ");
-                id = input.nextLine();
-            } while (!fillInputNumbers_v2(id));
-            try {
+                do {
+                    System.out.print("Enter the city id of this List: ");
+                    id = input.nextLine();
+                } while (!fillInputNumbers_v2(id));
+                for (City c : cities) {
+                    if (c.getId().equals(Long.valueOf(id))) {
+                        city = c;
+                        cityCheck = false;
+                        break;
+                    }
+                }
+            } while (cityCheck);
+
+
+            /*try {
                 city = cityService.findById(Long.valueOf(id));
                 System.out.println("City found: " + city);
             } catch (Exception e4) {
@@ -329,11 +229,11 @@ public class LoginMenu {
                     System.out.println("Error: " + e.getMessage());
                 } else
                     System.out.println("Unexpected Error: " + e.getMessage());
-            }
+            }*/
 
 
             do {
-                System.out.print("Enter typeOfUniversity: Governmental(Enter 1) or NonGovernmental(Enter 0)");
+                System.out.print("Enter typeOfUniversity: Governmental(Enter 1) or NonGovernmental(Enter 0): ");
                 String typeOfUniversityInput = input.nextLine();
                 switch (typeOfUniversityInput) {
                     case "0" -> {
@@ -391,19 +291,227 @@ public class LoginMenu {
             }
         }
         String password = Utility.generateSecurePassword();
-        Student student = Student.builder()
-                .firstName(firstName).lastName(lastName).fatherName(fatherName).motherName(motherName)
-                .birthCertificateNumber(birthCertificateNumber).nationalCode(nationalCode)
-                .studentCode(studentCode).entryYear(Integer.valueOf(entryYear))
-                .birthdate(birthDate).degree(Degree.valueOf(degree))
-                .isMarried(isMarried).partnerCode(partnerCode).admissionType(AdmissionType.valueOf(admissionType))
-                .university(university).userName(nationalCode).password(password)
-                .build();
+        Student student;
+        if (admissionType == null) {
+            student = Student.builder()
+                    .firstName(firstName).lastName(lastName).fatherName(fatherName).motherName(motherName)
+                    .birthCertificateNumber(birthCertificateNumber).nationalCode(nationalCode)
+                    .studentCode(studentCode).entryYear(Integer.valueOf(entryYear))
+                    .birthdate(birthDate).degree(Degree.valueOf(degree))
+                    .isMarried(isMarried).haveDormitory(haveDormitory).partnerCode(partnerCode)
+                    .university(university).userName(nationalCode).password(password)
+                    .build();
+        } else {
+            student = Student.builder()
+                    .firstName(firstName).lastName(lastName).fatherName(fatherName).motherName(motherName)
+                    .birthCertificateNumber(birthCertificateNumber).nationalCode(nationalCode)
+                    .studentCode(studentCode).entryYear(Integer.valueOf(entryYear))
+                    .birthdate(birthDate).degree(Degree.valueOf(degree))
+                    .isMarried(isMarried).haveDormitory(haveDormitory).partnerCode(partnerCode).admissionType(AdmissionType.valueOf(admissionType))
+                    .university(university).userName(nationalCode).password(password)
+                    .build();
+        }
         token = studentService.save(student);
         System.out.println("save done");
         System.out.println("your username is: " + token.getUserName() + "    and password is : " + token.getPassword());
         return token != null;
 
+    }
+
+    private String getPartnerCode(Scanner input) {
+        String partnerCode;
+        do {
+            System.out.println("Enter the PARTNER CODE: ");
+            partnerCode = input.nextLine();
+        } while (!fillInputNumbers(partnerCode, 10));
+        return partnerCode;
+    }
+
+    private String getStudentCode(Scanner input) {
+        String studentCode;
+        do {
+            System.out.print("Enter the STUDENT CODE (5 digit): ");
+            studentCode = input.nextLine();
+        } while (!fillInputNumbers(studentCode, 5));
+        return studentCode;
+    }
+
+    private String getNationalCode(Scanner input) {
+        String nationalCode;
+        do {
+            System.out.print("Enter the National Code (10 digit): ");
+            nationalCode = input.nextLine();
+        } while (!fillInputNumbers(nationalCode, 10));
+        return nationalCode;
+    }
+
+    private String getCertificateNumber(Scanner input) {
+        String birthCertificateNumber;
+        do {
+            System.out.print("Enter the Birth Certificate Number: ");
+            birthCertificateNumber = input.nextLine();
+        } while (!fillInputNumbersWithMinAndMaxNumber(birthCertificateNumber, 1, 10));
+        return birthCertificateNumber;
+    }
+
+    private String getMotherName(Scanner input) {
+        String motherName;
+        do {
+            System.out.print("Enter the motherName: ");
+            motherName = input.nextLine();
+        } while (!fillInputString(motherName));
+        return motherName;
+    }
+
+    private String getFatherName(Scanner input) {
+        String fatherName;
+        do {
+            System.out.print("Enter the fatherName: ");
+            fatherName = input.nextLine();
+        } while (!fillInputString(fatherName));
+        return fatherName;
+    }
+
+    private String getLastName(Scanner input) {
+        String lastName;
+        do {
+            System.out.print("Enter the LastName: ");
+            lastName = input.nextLine();
+        } while (!fillInputString(lastName));
+        return lastName;
+    }
+
+    private String getFirstName(Scanner input) {
+        String firstName;
+        do {
+            System.out.print("Enter the FirstName: ");
+            firstName = input.nextLine();
+        } while (!fillInputString(firstName));
+        return firstName;
+    }
+
+    private String getUniversityName(Scanner input) {
+        String universityName;
+        do {
+            System.out.print("Enter the University Name: ");
+            universityName = input.nextLine();
+        } while (!fillInputString(universityName));
+        return universityName;
+    }
+
+    private boolean checkOperation(String x, Scanner input) {
+        boolean studentProperty;
+        boolean continues;
+        do {
+            studentProperty = false;
+            System.out.println(x);
+            String inputString = input.nextLine();
+            switch (inputString) {
+                case "0" -> continues = false;
+                case "1" -> {
+                    studentProperty = true;
+                    continues = false;
+                }
+                default -> {
+                    System.out.println("Enter the valid number: ");
+                    continues = true;
+                }
+            }
+        } while (continues);
+        return studentProperty;
+    }
+
+    private String getEntryYear(Scanner input) {
+        String entryYear;
+        do {
+            System.out.print("Enter the entryYear: ");
+            entryYear = input.nextLine();
+        } while (!fillInputNumbersWithMinAndMaxYear(entryYear, 2010, 2024));
+        return entryYear;
+    }
+
+    private static String getDegree(Scanner input) {
+        String degree;
+        boolean continues;
+        do {
+
+            System.out.print("""
+                    Enter the Degree:
+                        Associate(Enter 0),
+                        Continuous_Bachelor(Enter 1),
+                        DisContinuous_Bachelor(Enter 2),
+                        IntegratedMaster(Enter 3),
+                        DisContinuousMaster(Enter 4),
+                        ProfessionalDoctorate(Enter 5),
+                        IntegratedDoctorate(Enter 6),
+                        PhD(Enter 7)
+                    """);
+            degree = input.nextLine();
+            switch (degree) {
+                case "0" -> {
+                    degree = "Associate";
+                    continues = false;
+                }
+                case "1" -> {
+                    degree = "Continuous_Bachelor";
+                    continues = false;
+                }
+                case "2" -> {
+                    degree = "DisContinuous_Bachelor";
+                    continues = false;
+                }
+                case "3" -> {
+                    degree = "IntegratedMaster";
+                    continues = false;
+                }
+                case "4" -> {
+                    degree = "DisContinuousMaster";
+                    continues = false;
+                }
+                case "5" -> {
+                    degree = "ProfessionalDoctorate";
+                    continues = false;
+                }
+                case "6" -> {
+                    degree = "IntegratedDoctorate";
+                    continues = false;
+                }
+                case "7" -> {
+                    degree = "PhD";
+                    continues = false;
+                }
+                default -> {
+                    System.out.println("Enter the valid number: ");
+                    continues = true;
+                }
+            }
+            //break;
+        } while (continues);
+        return degree;
+    }
+
+    private LocalDate getBirthDate(Scanner input) {
+        LocalDate birthDate;
+        while (true) {
+            System.out.print("Enter the Year Of Birthdate: ");
+            String yearOfBirthdate = input.nextLine();
+            if (fillInputNumbersWithMinAndMaxYear(yearOfBirthdate, 1930, 2006)) {
+                System.out.print("Enter the Month Of Birthdate: ");
+                String monthOfBirthdate = input.nextLine();
+                if (fillInputNumbersWithMinAndMaxYear(monthOfBirthdate, 1, 12)) {
+                    System.out.print("Enter the Day Of Birthdate: ");
+                    String dayOfBirthdate = input.nextLine();
+                    switch (Integer.parseInt(monthOfBirthdate)) {
+                        case 1, 3, 5, 6, 7, 8, 10, 12 -> fillInputNumbersWithMinAndMaxYear(dayOfBirthdate, 1, 31);
+                        case 4, 9, 11 -> fillInputNumbersWithMinAndMaxYear(dayOfBirthdate, 1, 30);
+                        default -> fillInputNumbersWithMinAndMaxYear(dayOfBirthdate, 1, 29);
+                    }
+                    birthDate = LocalDate.of(Integer.parseInt(yearOfBirthdate), Integer.parseInt(monthOfBirthdate), Integer.parseInt(dayOfBirthdate));
+                    break;
+                }
+            }
+        }
+        return birthDate;
     }
 
     private boolean fillInputNumbers_v2(String input) {

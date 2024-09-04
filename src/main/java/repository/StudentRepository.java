@@ -8,4 +8,8 @@ public interface StudentRepository {
     boolean existsNationalCode(String nationalCode);
 
     Student findStudentByNationalCode(String nationalCode);
+
+    Student findStudentByStudentCode(String studentCode);
+
+    void findStudentByPartnerCode(String partnerCode);
 }

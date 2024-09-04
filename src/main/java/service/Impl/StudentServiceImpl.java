@@ -87,6 +87,28 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
+    public Student findStudentByStudentCode(String studentCode) {
+        try {
+            return studentRepository.findStudentByStudentCode(studentCode);
+        } catch (NoResultException e) {
+            throw new StudentExceptions.NotFoundException(e.getMessage());
+        } catch (PersistenceException e) {
+            throw new StudentExceptions.DatabaseAccessException(e.getMessage());
+        }
+    }
+
+    @Override
+    public void findStudentByPartnerCode(String partnerCode) {
+        try {
+            studentRepository.findStudentByPartnerCode(partnerCode);
+        } catch (NoResultException e) {
+            throw new StudentExceptions.NotFoundException(e.getMessage());
+        } catch (PersistenceException e) {
+            throw new StudentExceptions.DatabaseAccessException(e.getMessage());
+        }
+    }
+
+    @Override
     public ZonedDateTime calculateGraduationDate(Student student) {
         int entryYear = student.getEntryYear();
         int endOfGraduation;
@@ -100,7 +122,7 @@ public class StudentServiceImpl implements StudentService {
             default -> endOfGraduation = entryYear;
         }
         return ZonedDateTime.of(endOfGraduation, 6, 22
-                ,0,0,0,0,ZonedDateTime.now().getZone());
+                , 0, 0, 0, 0, ZonedDateTime.now().getZone());
     }
 
     public boolean checkStudentIsGraduation(ZonedDateTime currentDate, ZonedDateTime graduationDate) {
@@ -120,12 +142,6 @@ public class StudentServiceImpl implements StudentService {
         }
         return conditions;
     }
+
+
 }
-   /*  if (currentDate.getYear() > graduationDate.getYear()) {
-            conditions = true;
-        } else if (currentDate.getYear() == graduationDate.getYear()) {
-            if (currentDate.getMonthValue() == graduationDate.getMonthValue()) {
-                if (currentDate.getDayOfMonth() >= graduationDate.getDayOfMonth()) System.out.println();
-                conditions = true;
-            }
-        }*/

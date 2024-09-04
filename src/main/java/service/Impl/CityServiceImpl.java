@@ -19,7 +19,7 @@ public class CityServiceImpl implements CityService {
         try {
             List<City> cities = cityBaseEntityRepository.findAll();
             if (cities == null || cities.isEmpty()) {
-                throw new CityExceptions.CityNotFoundException("No cities found.");
+                throw new CityExceptions.CityNotFoundException("No cities found. contact your admin");
             }
             return cities;
         } catch (Exception e) {

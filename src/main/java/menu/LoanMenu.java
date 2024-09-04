@@ -2,6 +2,7 @@ package menu;
 
 import entity.*;
 import enumaration.*;
+import exceptions.BankExceptions;
 import exceptions.CreditCardExceptions;
 import exceptions.LoanExceptions;
 import exceptions.StudentExceptions;
@@ -11,6 +12,7 @@ import util.ApplicationContext;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Scanner;
 
 public class LoanMenu {
@@ -139,8 +141,8 @@ public class LoanMenu {
         String cardNumber;
         String cvv2 = null;
         ZonedDateTime expirationDate = null;
-        CreditCard creditCard = null;
         Account account = null;
+        CreditCard creditCard = null;
         do {
             conditions = false;
             cardNumber = enterCardNumber(input);
@@ -177,9 +179,10 @@ public class LoanMenu {
         if (creditCard == null) {
             //-------------------------------------------------------------------------
             //get bank
-            String bankName = enterBankName(input);
+            Bank bank;
+            bank = getBank(input, null);
+            if (bank == null) return;
 
-            Bank bank = bankService.findByName(bankName);
             //------------------------------------------------------------------------------
             //get account number and create Account Object and save in DB
             account = Account.builder().student(token).bank(bank).build();
@@ -274,9 +277,9 @@ public class LoanMenu {
         if (creditCard == null) {
             //-------------------------------------------------------------------------
             //get bank
-            String bankName = enterBankName(input);
-
-            Bank bank = bankService.findByName(bankName);
+            Bank bank;
+            bank = getBank(input, null);
+            if (bank == null) return;
             //------------------------------------------------------------------------------
             //get account number and create Account Object and save in DB
             account = Account.builder().student(token).bank(bank).balance(0.0).build();
@@ -324,6 +327,29 @@ public class LoanMenu {
             accountService.update(account);
         }
         System.out.println("The operation was successful.");
+    }
+
+    private Bank getBank(Scanner input, Bank bank) {
+        List<Bank> bankList;
+        try {
+            bankList = bankService.findAll();
+        } catch (BankExceptions.NotFoundException | BankExceptions.DatabaseException e) {
+            System.out.println(e.getMessage());
+            return null;
+        }
+
+        //boolean bankCondition = true;
+        // do {
+        String bankName = enterBankName(input);
+        for (Bank b : bankList) {
+            if (b.getName().equalsIgnoreCase(bankName)) {
+                //bankCondition = false;
+                bank = b;
+                break;
+            }
+        }
+        // } while (bankCondition);
+        return bank;
     }
 
     private Double getAmountOfLoan(Degree degree, LoanType loanType) {

@@ -30,7 +30,8 @@ public class City extends BaseEntity {
     @Override
     public String toString() {
         return "City{" +
-               "name=" + name +
+               "id: " + super.getId() +
+               ", name=" + name +
                ", typeOfCity=" + typeOfCity +
                "}";
     }
