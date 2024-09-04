@@ -78,9 +78,11 @@ public class LoanMenu {
     private void registerMortgage(Student token, ZonedDateTime currentDate, Scanner input) {
         if (!token.isMarried()) {
             System.out.println("You are not permit to Register Mortgage");
+            return;
         } else {
             if (token.isHaveDormitory()) {
                 System.out.println("You are not permit to Register Mortgage! because you have Dormitory");
+                return;
             }
         }
         Loan loan;
@@ -140,7 +142,7 @@ public class LoanMenu {
         boolean conditions;
         String cardNumber;
         String cvv2 = null;
-        ZonedDateTime expirationDate = null;
+        LocalDate expirationDate = null;
         Account account = null;
         CreditCard creditCard = null;
         do {
@@ -238,7 +240,7 @@ public class LoanMenu {
         boolean conditions;
         String cardNumber;
         String cvv2 = null;
-        ZonedDateTime expirationDate = null;
+        LocalDate expirationDate = null;
         Account account = null;
         CreditCard creditCard = null;
         do {
@@ -397,8 +399,8 @@ public class LoanMenu {
         return amountOfLoan;
     }
 
-    private ZonedDateTime enterExpirationDate(Scanner input) {
-        ZonedDateTime expirationDate = null;
+    private LocalDate enterExpirationDate(Scanner input) {
+        LocalDate expirationDate = null;
         System.out.print("expiration date:  ");
         System.out.print("Enter the Year of expiration date:  ");
         String yearOfExpirationDate = input.nextLine();
@@ -407,13 +409,11 @@ public class LoanMenu {
             String monthExpirationDate = input.nextLine();
             if (fillInputNumbersWithMinAndMaxDate(monthExpirationDate, 1, 12)) {
                 String dayOfExpirationDate = getDayOfExpirationDate(input, monthExpirationDate);
-                LocalDate localDate = LocalDate.of(
+                expirationDate = LocalDate.of(
                         Integer.parseInt(yearOfExpirationDate),
                         Integer.parseInt(monthExpirationDate),
                         Integer.parseInt(dayOfExpirationDate)
                 );
-
-                expirationDate = localDate.atStartOfDay(ZonedDateTime.now().getZone());
 
             }
         }
@@ -434,7 +434,7 @@ public class LoanMenu {
         return dayOfExpirationDate;
     }
 
-    private boolean checkCardIsExpired(ZonedDateTime currentDate, boolean conditions, ZonedDateTime expirationDate) {
+    private boolean checkCardIsExpired(ZonedDateTime currentDate, boolean conditions, LocalDate expirationDate) {
         if (currentDate.getYear() < expirationDate.getYear()) {
             System.out.print("");
         } else if (currentDate.getYear() == expirationDate.getYear()) {
@@ -537,9 +537,9 @@ public class LoanMenu {
     }
 
     private boolean isAbanRange(ZonedDateTime currentDate) {
-        ZonedDateTime startOfRange = ZonedDateTime.of(currentDate.getYear(), 10, 22
+        ZonedDateTime startOfRange = ZonedDateTime.of(currentDate.getYear(), 10, 23
                 , 0, 0, 0, 0, ZonedDateTime.now().getZone());
-        ZonedDateTime endOfRange = ZonedDateTime.of(currentDate.getYear(), 10, 28
+        ZonedDateTime endOfRange = ZonedDateTime.of(currentDate.getYear(), 10, 29
                 , 23, 59, 59, 0, ZonedDateTime.now().getZone());
 
         return !currentDate.isBefore(startOfRange) && !currentDate.isAfter(endOfRange);
@@ -589,9 +589,9 @@ public class LoanMenu {
     }
 
     private boolean isBahmanRange(ZonedDateTime currentDate) {
-        ZonedDateTime startOfRange = ZonedDateTime.of(currentDate.getYear(), 2, 13,
+        ZonedDateTime startOfRange = ZonedDateTime.of(currentDate.getYear(), 2, 14,
                 0, 0, 0, 0, ZonedDateTime.now().getZone());
-        ZonedDateTime endOfRange = ZonedDateTime.of(currentDate.getYear(), 2, 19
+        ZonedDateTime endOfRange = ZonedDateTime.of(currentDate.getYear(), 2, 20
                 , 23, 59, 59, 0, ZonedDateTime.now().getZone());
 
         return !currentDate.isBefore(startOfRange) && !currentDate.isAfter(endOfRange);

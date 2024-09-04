@@ -46,7 +46,10 @@ public class RepaymentMenu {
                         List<Tuple> result;
                         try {
                             result = paymentService.listOfLoanThatMustBePayed(token.getId());
-
+                            if (result.size() == 0) {
+                                System.out.println("You have no installments to pay");
+                                break;
+                            }
                             result.forEach(System.out::println);
                         } catch (PaymentExceptions.NotFoundException e) {
                             System.out.println("You have no installments to pay" + e.getMessage());

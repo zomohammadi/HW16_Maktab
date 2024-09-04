@@ -52,20 +52,20 @@ public class PaymentRepositoryImp extends BaseEntityRepositoryImpl<Payment> impl
     @Override
     public List<Tuple> listOfLoanThatMustBePayed(Long id) {
         TypedQuery<Tuple> query = getEntityManager().createQuery("""
-                    select p.id as id, p.amountPerInstallment as amount_per_installment
-                    , p.installmentNumber as installment_number, l.loanType as loan_type,
-                     l.createDate as request_date, p.prepaymentDate as prepayment_date
-                    from Payment p
-                             join Loan l on l = p.loan
-                             join Student s on l.student = s
-                    where p.isPayed = false
-                    and s.id = ?1
-                    and  p.prepaymentDate in (select  min(g.prepaymentDate)
-                                                        from Payment g
-                                                        where g.isPayed = false
-                                                        and p.loan = g.loan
-                                                        group by g.loan )
-                                    """, Tuple.class);
+                select p.id as id, p.amountPerInstallment as amount_per_installment
+                , p.installmentNumber as installment_number, l.loanType as loan_type,
+                 l.createDate as request_date, p.prepaymentDate as prepayment_date
+                from Payment p
+                         join Loan l on l = p.loan
+                         join Student s on l.student = s
+                where p.isPayed = false
+                and s.id = ?1
+                and  p.prepaymentDate in (select  min(g.prepaymentDate)
+                                                    from Payment g
+                                                    where g.isPayed = false
+                                                    and p.loan = g.loan
+                                                    group by g.loan )
+                                """, Tuple.class);
 
         query.setParameter(1, id);
         return query.getResultList();
@@ -73,7 +73,10 @@ public class PaymentRepositoryImp extends BaseEntityRepositoryImpl<Payment> impl
 
     @Override
     public int update(Payment payment, Long studentId, String cardNumber, String cvv2, LocalDate expirationDate) {
-        getEntityManager().getTransaction().begin();
+        // Ensure no active transaction is running
+        if (!getEntityManager().getTransaction().isActive()) {
+            getEntityManager().getTransaction().begin();
+        }
 
         if (payment != null) {
             // Verify card details
@@ -98,7 +101,10 @@ public class PaymentRepositoryImp extends BaseEntityRepositoryImpl<Payment> impl
                 return 1;
             }
         }
-        getEntityManager().getTransaction().rollback();
+        // Rollback in case of failure
+        if (getEntityManager().getTransaction().isActive()) {
+            getEntityManager().getTransaction().rollback();
+        }
         return 0;
     }
 }

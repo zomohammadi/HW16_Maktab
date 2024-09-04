@@ -7,7 +7,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 
-import java.time.ZonedDateTime;
+import java.time.LocalDate;
 
 @SuperBuilder
 @Entity
@@ -33,5 +33,5 @@ public class CreditCard extends BaseEntity {
     String cvv2;
 
     @Column(name = EXPIRATION_DATE)
-    ZonedDateTime expirationDate;
+    LocalDate expirationDate;
 }
