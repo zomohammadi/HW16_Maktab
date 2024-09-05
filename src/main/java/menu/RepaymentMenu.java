@@ -42,65 +42,7 @@ public class RepaymentMenu {
 
                     case 2 -> unpaidInstallments(token);
 
-                    case 3 -> {
-                        List<Tuple> result;
-                        try {
-                            result = paymentService.listOfLoanThatMustBePayed(token.getId());
-                            if (result.size() == 0) {
-                                System.out.println("You have no installments to pay");
-                                break;
-                            }
-                            result.forEach(System.out::println);
-                        } catch (PaymentExceptions.NotFoundException e) {
-                            System.out.println("You have no installments to pay" + e.getMessage());
-                            return;
-                        }
-
-
-                        //   checkInputIsEqualToList(input, result,paymentId);
-                        String paymentId;
-                        boolean condition;
-                        do {
-
-                            paymentId = enterNumber(input);
-
-                            if (checkInputIsEqualToList(result, paymentId)) {
-                                condition = false;
-                                break;
-                            } else {
-                                condition = true;
-                                System.out.println("Please choose a number from the above list ");
-                            }
-
-                        } while (condition);
-
-                        String cardNumber;
-                        String cvv2;
-                        LocalDate expirationDate;
-
-                        cardNumber = enterCardNumber(input);
-                        cvv2 = enterCvv2(input);
-                        boolean expireDateCondition = true;
-                        do {
-
-                            expirationDate = enterExpirationDate(input);
-
-                            if (expirationDate != null) expireDateCondition = false;
-                        } while (expireDateCondition);
-
-                        int updateResult = 0;
-                        try {
-
-                            updateResult = paymentService.update(Long.valueOf(paymentId),
-                                    token.getId(), cardNumber, cvv2, expirationDate);
-                        } catch (Exception e) {
-                            System.out.println(e.getMessage());
-                        }
-                        if (updateResult == 0)
-                            System.out.println("No payable installments were found with these card details. ");
-                        else if (updateResult == 1) System.out.println("operation done");
-
-                    }
+                    case 3 -> installmentPayment(token, input);
                     case 4 -> continueRunning = false;
                     default -> System.out.println("Wrong option!");
                 }
@@ -110,6 +52,65 @@ public class RepaymentMenu {
                 System.out.println("An unexpected error occurred: " + e.getMessage());
             }
         }
+    }
+
+    private void installmentPayment(Student token, Scanner input) {
+        List<Tuple> result;
+        try {
+            result = paymentService.listOfLoanThatMustBePayed(token.getId());
+            if (result.size() == 0) {
+                System.out.println("You have no installments to pay");
+                return;
+            }
+            result.forEach(System.out::println);
+        } catch (PaymentExceptions.NotFoundException e) {
+            System.out.println("You have no installments to pay" + e.getMessage());
+            return;
+        }
+
+
+        //   checkInputIsEqualToList(input, result,paymentId);
+        String paymentId;
+        boolean condition;
+        do {
+
+            paymentId = enterNumber(input);
+
+            if (checkInputIsEqualToList(result, paymentId)) {
+                condition = false;
+                break;
+            } else {
+                condition = true;
+                System.out.println("Please choose a number from the above list ");
+            }
+
+        } while (condition);
+
+        String cardNumber;
+        String cvv2;
+        LocalDate expirationDate;
+
+        cardNumber = enterCardNumber(input);
+        cvv2 = enterCvv2(input);
+        boolean expireDateCondition = true;
+        do {
+
+            expirationDate = enterExpirationDate(input);
+
+            if (expirationDate != null) expireDateCondition = false;
+        } while (expireDateCondition);
+
+        int updateResult = 0;
+        try {
+
+            updateResult = paymentService.update(Long.valueOf(paymentId),
+                    token.getId(), cardNumber, cvv2, expirationDate);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        if (updateResult == 0)
+            System.out.println("No payable installments were found with these card details. ");
+        else if (updateResult == 1) System.out.println("operation done");
     }
 
     private boolean checkInputIsEqualToList(List<Tuple> result, String paymentId) {

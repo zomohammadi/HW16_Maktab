@@ -15,20 +15,6 @@ public class StudentExceptions {
         }
     }
 
-    public static class StudentIllegalArgumentException extends RuntimeException {
-        public StudentIllegalArgumentException() {
-            super();
-        }
-
-        public StudentIllegalArgumentException(String message) {
-            super(message);
-        }
-
-        public StudentIllegalArgumentException(String message, Throwable cause) {
-            super(message, cause);
-        }
-    }
-
     public static class NotFoundException extends RuntimeException {
         public NotFoundException() {
             super();

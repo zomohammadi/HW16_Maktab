@@ -38,7 +38,6 @@ public class PaymentServiceImpl implements PaymentService {
         //round 500.3458788 to 500.346
         amountPerInstallment = Math.round(amountPerInstallment * 1000.0) / 1000.0;
 
-        // Assuming payments start from the current date and are monthly
         ZonedDateTime startDate = ApplicationContext.getInstance()
                 .getStudentService().calculateGraduationDate(loan.getStudent());
 

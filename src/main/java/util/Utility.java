@@ -48,16 +48,16 @@ public class Utility {
         return dateProvider.apply(null) == null ? defaultDateSupplier.get() : dateProvider.apply(null);
     }
 
-    public static class UseDate {
-        public static ZonedDateTime useDate() {
-            /* ZonedDateTime currentDate = getDate(date -> null);*/
+
+    public static ZonedDateTime useDate() {
+        /* ZonedDateTime currentDate = getDate(date -> null);*/
 
              /*ZonedDateTime currentDate = getDate(date -> ZonedDateTime.of(2018, 10, 23 , ZonedDateTime.now().getHour(), ZonedDateTime.now().getMinute(),
                                 ZonedDateTime.now().getSecond(), 0, ZonedDateTime.now().getZone()));*/
 
             /*ZonedDateTime currentDate = getDate(date -> ZonedDateTime.of(2019, 2, 14, ZonedDateTime.now().getHour(), ZonedDateTime.now().getMinute(),
                     ZonedDateTime.now().getSecond(), 0, ZonedDateTime.now().getZone()));*/
-            //out of range
+        //out of range
            /* ZonedDateTime currentDate = getDate(date -> ZonedDateTime.of(2019, 2, 21 , ZonedDateTime.now().getHour(), ZonedDateTime.now().getMinute(),
                     ZonedDateTime.now().getSecond(), 0, ZonedDateTime.now().getZone()));*/
 //for 2 years --- entryYear = > 2018
@@ -65,11 +65,13 @@ public class Utility {
                     , ZonedDateTime.now().getHour(), ZonedDateTime.now().getMinute(),
                     ZonedDateTime.now().getSecond(), 0, ZonedDateTime.now().getZone()));*/
 
-            //for 4 years --- entryYear = > 2015
-            ZonedDateTime currentDate = getDate(date -> ZonedDateTime.of(2024, 10, 23
-                    , ZonedDateTime.now().getHour(), ZonedDateTime.now().getMinute(),
-                    ZonedDateTime.now().getSecond(), 0, ZonedDateTime.now().getZone()));
-            return currentDate;
-        }
+//for 4 years --- entryYear = > 2015
+        ZonedDateTime currentDate = getDate(date -> ZonedDateTime.of(2024, 10, 23
+                , ZonedDateTime.now().getHour(), ZonedDateTime.now().getMinute(),
+                ZonedDateTime.now().getSecond(), 0, ZonedDateTime.now().getZone()));
+
+
+        return currentDate;
     }
+
 }

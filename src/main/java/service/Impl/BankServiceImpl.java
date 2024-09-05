@@ -28,11 +28,11 @@ public class BankServiceImpl implements service.BankService {
     @Override
     public List<Bank> findAll() {
         try {
-            List<Bank> cities = bankBaseEntityRepository.findAll();
-            if (cities == null || cities.isEmpty()) {
+            List<Bank> banks = bankBaseEntityRepository.findAll();
+            if (banks == null || banks.isEmpty()) {
                 throw new BankExceptions.NotFoundException("No banks found. contact your admin");
             }
-            return cities;
+            return banks;
         } catch (Exception e) {
             throw new BankExceptions.DatabaseException(e.getMessage());
         }

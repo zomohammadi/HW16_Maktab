@@ -205,52 +205,7 @@ public class LoginMenu {
                 }
             } while (cityCheck);
 
-
-            /*try {
-                city = cityService.findById(Long.valueOf(id));
-                System.out.println("City found: " + city);
-            } catch (Exception e4) {
-                if (e4 instanceof CityExceptions.CityNotFoundException) {
-                    System.out.println("Error: " + e.getMessage());
-                    do {
-                        do {
-                            System.out.print("Enter the city id of this List: ");
-                            id = input.nextLine();
-                        } while (!fillInputNumbers_v2(id));
-                        try {
-                            city = cityService.findById(Long.valueOf(id));
-                            System.out.println("City found: " + city);
-
-                        } catch (CityExceptions.CityNotFoundException e2) {
-                            System.out.println("Error: " + e2.getMessage());
-                        }
-                    } while (city == null);
-                } else if (e4 instanceof CityExceptions.CityDatabaseException) {
-                    System.out.println("Error: " + e.getMessage());
-                } else
-                    System.out.println("Unexpected Error: " + e.getMessage());
-            }*/
-
-
-            do {
-                System.out.print("Enter typeOfUniversity: Governmental(Enter 1) or NonGovernmental(Enter 0): ");
-                String typeOfUniversityInput = input.nextLine();
-                switch (typeOfUniversityInput) {
-                    case "0" -> {
-                        typeOfUniversity = "NonGovernmental";
-                        continues = false;
-                    }
-
-                    case "1" -> {
-                        typeOfUniversity = "Governmental";
-                        continues = false;
-                    }
-                    default -> {
-                        System.out.println("Enter the valid number: ");
-                        continues = true;
-                    }
-                }
-            } while (continues);
+            typeOfUniversity = getTypeOfUniversity(input, typeOfUniversity);
 
 
             university = University.builder().name(universityName).city(city)
@@ -316,6 +271,30 @@ public class LoginMenu {
         System.out.println("your username is: " + token.getUserName() + "    and password is : " + token.getPassword());
         return token != null;
 
+    }
+
+    private static String getTypeOfUniversity(Scanner input, String typeOfUniversity) {
+        boolean continues;
+        do {
+            System.out.print("Enter typeOfUniversity: Governmental(Enter 1) or NonGovernmental(Enter 0): ");
+            String typeOfUniversityInput = input.nextLine();
+            switch (typeOfUniversityInput) {
+                case "0" -> {
+                    typeOfUniversity = "NonGovernmental";
+                    continues = false;
+                }
+
+                case "1" -> {
+                    typeOfUniversity = "Governmental";
+                    continues = false;
+                }
+                default -> {
+                    System.out.println("Enter the valid number: ");
+                    continues = true;
+                }
+            }
+        } while (continues);
+        return typeOfUniversity;
     }
 
     private String getPartnerCode(Scanner input) {

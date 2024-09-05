@@ -39,19 +39,11 @@ public class StudentMenu {
                 int option = Integer.parseInt(stringOption);
 
                 //get current date
-                ZonedDateTime currentDate = Utility.UseDate.useDate();
+                ZonedDateTime currentDate = Utility.useDate();
 
                 switch (option) {
                     case 1 -> loanRegistration(token, currentDate);
-
-                    case 2 -> {
-                        if (studentService.checkStudentIsGraduation(currentDate,
-                                studentService.calculateGraduationDate(token))) {
-                            repaymentMenu.showRepaymentMenu(token);
-                        } else {
-                            System.out.println("Loan repayment has not been activated for you!");
-                        }
-                    }
+                    case 2 -> loanRepayment(token, currentDate);
                     case 3 -> continueRunning = false;
                     default -> System.out.println("Wrong option!");
                 }
@@ -60,6 +52,15 @@ public class StudentMenu {
             } catch (Exception e) {
                 System.out.println("An unexpected error occurred: " + e.getMessage());
             }
+        }
+    }
+
+    private void loanRepayment(Student token, ZonedDateTime currentDate) {
+        if (studentService.checkStudentIsGraduation(currentDate,
+                studentService.calculateGraduationDate(token))) {
+            repaymentMenu.showRepaymentMenu(token);
+        } else {
+            System.out.println("Loan repayment has not been activated for you!");
         }
     }
 

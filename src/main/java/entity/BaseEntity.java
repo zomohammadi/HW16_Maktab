@@ -39,14 +39,14 @@ public class BaseEntity implements Serializable {
 
     @PrePersist
     public void perPersist() {
-        setCreateDate(Utility.UseDate.useDate());
-        setLastUpdateDate(Utility.UseDate.useDate());
+        setCreateDate(Utility.useDate());
+        setLastUpdateDate(Utility.useDate());
 
     }
 
     @PreUpdate
     public void perUpdate() {
-        setLastUpdateDate(Utility.UseDate.useDate());
+        setLastUpdateDate(Utility.useDate());
     }
 
 }

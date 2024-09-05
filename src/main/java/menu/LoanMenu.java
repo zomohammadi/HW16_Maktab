@@ -70,7 +70,7 @@ public class LoanMenu {
                 System.out.println("Wrong option!");
             } catch (Exception e) {
                 System.out.println("An unexpected error occurred: " + e.getMessage());
-                e.printStackTrace();  // This will print the stack trace for debugging
+                e.printStackTrace();
             }
         }
     }
@@ -171,6 +171,7 @@ public class LoanMenu {
                     if (expirationDate != null) expireDateCondition = false;
                 } while (expireDateCondition);
 
+                //check card is expired?
                 conditions = checkCardIsExpired(currentDate, false, expirationDate);
                 if (conditions) System.out.println("Enter the Card Number that is not expired");
 
@@ -202,6 +203,7 @@ public class LoanMenu {
                 .amount(amountOfLoan).degree(token.getDegree()).build();
         LoanCreditCard loanCreditCard = LoanCreditCard.builder()
                 .creditCard(creditCard).loan(loan).build();
+
         loan.setLoanCreditCard(loanCreditCard);
         //create payment
         paymentService.createPaymentsForLoan(loan);
@@ -298,7 +300,6 @@ public class LoanMenu {
         Term term = Term.builder().termType(TermType.valueOf(termType)).
                 year(currentDate.getYear()).build();
 
-        //TODOo exception for save method for term
         Term termAfterSaveInDB;
         try {
 
@@ -340,17 +341,13 @@ public class LoanMenu {
             return null;
         }
 
-        //boolean bankCondition = true;
-        // do {
         String bankName = enterBankName(input);
         for (Bank b : bankList) {
             if (b.getName().equalsIgnoreCase(bankName)) {
-                //bankCondition = false;
                 bank = b;
                 break;
             }
         }
-        // } while (bankCondition);
         return bank;
     }
 
