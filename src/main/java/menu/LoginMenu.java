@@ -80,9 +80,11 @@ public class LoginMenu {
 
             token = studentService.login(username, password);
         } catch (StudentExceptions.DatabaseAccessException e) {
-            System.out.println("Student not Found -" + e.getMessage());
+            System.out.println("Student not Found " );
+            return false;
         } catch (Exception e) {
             System.out.println("error: " + e.getMessage());
+            return false;
         }
         if (token == null) {
             System.out.println("username or password is incorrect");
